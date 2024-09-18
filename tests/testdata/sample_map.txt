@@ -1,0 +1,4 @@
+PD54616b	PD54616b.sorted.dups.coord.bam.gatk.g.vcf.gz
+PD54617b	PD54617b.sorted.dups.coord.bam.gatk.g.vcf.gz
+PD54618b	PD54618b.sorted.dups.coord.bam.gatk.g.vcf.gz
+PD54619b	PD54619b.sorted.dups.coord.bam.gatk.g.vcf.gz

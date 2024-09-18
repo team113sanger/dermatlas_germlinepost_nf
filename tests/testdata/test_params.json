@@ -1,4 +1,8 @@
 {
-    "bamfiles": "$baseDir/tests/testdata/**.bam",
-    "manifest": "$baseDir/tests/testdata/manifest.tsv"
+    "study_id": 6676,
+    "geno_vcf": "/lustre/scratch124/jb63/germline/**.gz",
+    "sample_map": "$baseDir/tests/testdata/sample_map.txt",
+    "reference_genome":"/lustre/scratch124/resources/dermatlas/GRCh38_full_analysis_set_plus_decoy_hla.fa{,.fai}"
+
+
 }
