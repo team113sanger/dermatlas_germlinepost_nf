@@ -22,23 +22,37 @@ process GENERATE_GENOMICS_DB {
     --reader-threads 6
     """
 
+}
 
+process CREATE_DICT {
+    container "broadinstitute/gatk:4.2.6.1"
+    input: 
+        path(ref_genome)
+    output:
+        tuple path(ref_genome), path("*.dict"), path("*.fai"), emit: ref
+
+    script:
+    """
+    gatk CreateSequenceDictionary -R $ref_genome
+    samtools faidx $ref_genome
+    """
 }
 
 process GATK_GVCF_PER_CHROM {
     container "broadinstitute/gatk:4.2.6.1"
     input: 
     tuple val(meta), path(GENDB)
-    path(REF_GENOME)
+    tuple path(ref_genome_file), path(ref_genome_dict), path(reference_idx)
     val(CHR)
 
     output: 
     tuple val(meta), path("*vcf.gz"), emit: chrom_vcf
 
     script:
+    
     """
     gatk --java-options "-Xmx4g -Xms4g" GenotypeGVCFs \
-       -R ${REF_GENOME} \
+       -R "${ref_genome_file}" \
        -V gendb://${GENDB} \
        -L $CHR \
        -O ${CHR}.vcf.gz \
@@ -61,7 +75,7 @@ process MERGE_COHORT_VCF {
     """
     gatk --java-options "-Xmx8g -Xms8g" GatherVcfs \
     -I ${vcf_file_list}
-    -O "${meta.study}_cohort_raw_genotypegvcf.vcf.gz"
+    -O "${meta.study_id}_cohort_raw_genotypegvcf.vcf.gz"
     """
 }
 
