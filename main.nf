@@ -1,24 +1,20 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
-include { GENERATE_GENOMICS_DB;GATK_GVCF_PER_CHROM;CREATE_DICT;MERGE_COHORT_VCF;INDEX_COHORT_VCF;SELECT_SNP_VARIANTS;SELECT_INDEL_VARIANTS;
-          MARK_SNP_VARIANTS; MARK_INDEL_VARIANTS;FILTER_SNP_VARIANTS;FILTER_INDEL_VARIANTS} from './subworkflows/germline_post.nf'
+include { GENERATE_GENOMICS_DB;GATK_GVCF_PER_CHROM;
+          CREATE_DICT;MERGE_COHORT_VCF;INDEX_COHORT_VCF;
+          SELECT_VARIANTS as SELECT_SNP_VARIANTS;SELECT_VARIANTS as SELECT_INDEL_VARIANTS;
+          MARK_SNP_VARIANTS; MARK_INDEL_VARIANTS;
+          FILTER_VARIANTS as FILTER_SNP_VARIANTS;FILTER_VARIANTS as FILTER_INDEL_VARIANTS} from './subworkflows/germline_post.nf'
 
 workflow {
     sample_map = file(params.sample_map, checkIfExists: true)
     baitset = file(params.baitset, checkIfExists: true)
     reference_genome = file(params.reference_genome, checkIfExists: true)
-    // reference_idx = file(params.reference_idx, checkIfExists: true)
     
     chroms = Channel.fromPath("$baseDir/assets/grch38_chromosome.txt")
     | splitCsv(sep:"\t")
-    
-    
-    chrom_list = chroms
-    | map { it -> "-L " + it[0] + " "}
-    | reduce{a, b -> a + b}
-    
-
-    chrom_vals = chroms.map{it[0]}
+    | collect(flat: true)
+    chrom_idx = chroms.withIndex()
     
     Channel.fromPath(params.geno_vcf)
     .map { file -> 
@@ -28,28 +24,38 @@ workflow {
      .map { file_list -> tuple([study_id: params.study_id], file_list)}
      .set{ vcf_ch }
     
-    GENERATE_GENOMICS_DB(sample_map, chrom_list, vcf_ch)
+    GENERATE_GENOMICS_DB(sample_map, chroms, vcf_ch)
     CREATE_DICT(reference_genome)
     GATK_GVCF_PER_CHROM(GENERATE_GENOMICS_DB.out.genomicsdb, 
                         CREATE_DICT.out.ref, 
-                        chrom_vals)
-    gvcf_chrom_files = GATK_GVCF_PER_CHROM.out.chrom_vcf
-    .groupTuple()
-    .view()
-    // .map{meta, it -> it}
-    // .collect()
-    // .map { file_list -> tuple([study_id: params.study_id], file_list)}
-    // 
+                        chrom_idx)
 
-
-    MERGE_COHORT_VCF(gvcf_chrom_files)
-    INDEX_COHORT_VCF(MERGE_COHORT_VCF.out.cohort_vcf)
     
-    SELECT_SNP_VARIANTS(INDEX_COHORT_VCF.out.indexed_cohort_vcf)
-    SELECT_INDEL_VARIANTS(INDEX_COHORT_VCF.out.indexed_cohort_vcf)
+    gvcf_chrom_files = GATK_GVCF_PER_CHROM.out.chrom_vcf
+    | toSortedList { item -> item[0][1]}
+    | transpose()
+    | last()
+    | map {it -> tuple([study_id: params.study_id], it)}
+    
+    MERGE_COHORT_VCF(gvcf_chrom_files)
 
-    MARK_SNP_VARIANTS(SELECT_SNP_VARIANTS.out.raw_variants,baitset)
-    MARK_INDEL_VARIANTS(SELECT_INDEL_VARIANTS.out.raw_variants, baitset)
+ 
+    // INDEX_COHORT_VCF(MERGE_COHORT_VCF.out.cohort_vcf)
+
+    // MERGE_COHORT_VCF.out.cohort_vcf
+    // | map {meta, file -> meta + ["variant_type": "SNP", "suffix": "_cohort_raw_snps"]}
+    // | set {snp_ch}
+
+    // MERGE_COHORT_VCF.out.cohort_vcf
+    // | map {meta, file -> meta + ["variant_type": "INDEL", "suffix": "_cohort_indel_raw"]}
+    // | set {indel_ch}
+    
+    
+    // SELECT_SNP_VARIANTS(snp_ch)
+    // SELECT_INDEL_VARIANTS(indel_ch)
+
+    // MARK_SNP_VARIANTS(SELECT_SNP_VARIANTS.out.raw_variants,baitset)
+    // MARK_INDEL_VARIANTS(SELECT_INDEL_VARIANTS.out.raw_variants, baitset)
 
     // FILTER_SNP_VARIANTS(MARK_SNP_VARIANTS.out.marked_variants)
     // FILTER_INDEL_VARIANTS(MARK_INDEL_VARIANTS.out.marked_variants)

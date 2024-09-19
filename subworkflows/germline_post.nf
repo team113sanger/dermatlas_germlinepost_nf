@@ -1,6 +1,7 @@
 
 process GENERATE_GENOMICS_DB {
     container "broadinstitute/gatk:4.2.6.1"
+    publishDir "${params.outdir}"
     input: 
     path(SAMPLE_MAP)
     val(chroms)
@@ -14,12 +15,18 @@ process GENERATE_GENOMICS_DB {
     gatk GenomicsDBImport \
     --genomicsdb-workspace-path "${meta.study_id}_full_cohort_dbimport_data" \
     --batch-size 50 \
-    $chroms \
+    ${chroms.collect{ f -> "-L ${f}" }.join(' ')} \
     --bypass-feature-reader true \
     --max-num-intervals-to-import-in-parallel 50 \
     --genomicsdb-shared-posixfs-optimizations true \
     --sample-name-map "${SAMPLE_MAP}" \
     --reader-threads 6
+    """
+
+    stub:
+    """
+    mkdir -p demo_full_cohort_dbimport_data
+    echo stub > demo_full_cohort_dbimport_data/test.txt
     """
 
 }
@@ -36,35 +43,45 @@ process CREATE_DICT {
     gatk CreateSequenceDictionary -R $ref_genome
     samtools faidx $ref_genome
     """
+    stub:
+    """
+    echo stub > genome.fai
+    echo stub > genome.dict
+    """
 }
 
 process GATK_GVCF_PER_CHROM {
+    tag {CHR[0]}
     container "broadinstitute/gatk:4.2.6.1"
+    publishDir "${params.outdir}/Raw_joint_call"
     input: 
     tuple val(meta), path(GENDB)
     tuple path(ref_genome_file), path(ref_genome_dict), path(reference_idx)
-    val(CHR)
+    each CHR
 
     output: 
-    tuple val(meta), path("*vcf.gz"), emit: chrom_vcf
+    tuple val(CHR), path("*vcf.gz"), emit: chrom_vcf
 
     script:
-    
     """
     gatk --java-options "-Xmx4g -Xms4g" GenotypeGVCFs \
        -R "${ref_genome_file}" \
        -V gendb://${GENDB} \
-       -L $CHR \
-       -O ${CHR}.vcf.gz \
+       -L $CHR[0] \
+       -O ${CHR[0]}.vcf.gz \
        --genomicsdb-shared-posixfs-optimizations true 
     """
 
-
+    stub:
+    """
+    echo stub > ${CHR[0]}.vcf.gz
+    """
 
 }
 
 process MERGE_COHORT_VCF {
     container "broadinstitute/gatk:4.2.6.1"
+    publishDir "${params.outdir}/Raw_joint_call"
     input: 
     tuple val(meta), path(vcf_file_list)
 
@@ -74,12 +91,17 @@ process MERGE_COHORT_VCF {
     script:
     """
     gatk --java-options "-Xmx8g -Xms8g" GatherVcfs \
-    -I ${vcf_file_list}
-    -O "${meta.study_id}_cohort_raw_genotypegvcf.vcf.gz"
+    ${vcf_file_list.collect{ f -> "-I ${f}" }.join(' ')} \
+    -O "TBC_cohort_raw_genotypegvcf.vcf.gz"
+    """
+    stub:
+    """
+    echo stub > TBC_cohort_raw_genotypegvcf.vcf.gz
     """
 }
 
 process INDEX_COHORT_VCF {
+    publishDir "${params.outdir}/Raw_joint_call"
     container "broadinstitute/gatk:4.2.6.1"
 
     input: 
@@ -97,8 +119,9 @@ process INDEX_COHORT_VCF {
 
 }
 
-process SELECT_SNP_VARIANTS {
+process SELECT_VARIANTS {
     container "broadinstitute/gatk:4.2.6.1"
+    publishDir "${params.outdir}/Final_joint_call"
     input: 
     tuple val(meta), path(raw_genotpye_vcf),  path(raw_genotpye_index) 
 
@@ -109,26 +132,8 @@ process SELECT_SNP_VARIANTS {
     """
     gatk --java-options "-Xmx8g -Xms8g" SelectVariants \
      -V ${raw_genotpye_vcf} \
-    -select-type SNP \
-    -O "${meta.study}_cohort_raw_snps.vcf.gz"
-    """
-
-}
-
-process SELECT_INDEL_VARIANTS {
-    container "broadinstitute/gatk:4.2.6.1"
-    input: 
-    tuple val(meta), path(raw_genotpye_vcf),  path(raw_genotpye_index) 
-
-    output:
-    tuple val(meta), path("*_cohort_indel_raw.vcf.gz"), emit: raw_variants
-    
-    script:
-    """
-    gatk --java-options "-Xmx8g -Xms8g" SelectVariants \
-     -V ${raw_genotpye_vcf} \
-    -select-type INDEL \
-    -O "${meta.study}_cohort_indel_raw.vcf.gz"
+    -select-type ${meta.variant_type} \
+    -O "${meta.study}${meta.ext}.vcf.gz"
     """
 
 }
@@ -137,6 +142,7 @@ process SELECT_INDEL_VARIANTS {
 
 process MARK_SNP_VARIANTS {
     container "broadinstitute/gatk:4.2.6.1"
+    publishDir "${params.outdir}/Final_joint_call"
     input: 
     tuple val(meta), path(raw_genotpye_vcf),  path(raw_genotpye_index) 
     path(baitset)
@@ -163,6 +169,7 @@ process MARK_SNP_VARIANTS {
 
 process MARK_INDEL_VARIANTS {
     container "broadinstitute/gatk:4.2.6.1"
+    publishDir "${params.outdir}/Final_joint_call"
     input: 
     tuple val(meta), path(raw_genotpye_vcf),  path(raw_genotpye_index) 
     path(baitset)
@@ -183,9 +190,9 @@ process MARK_INDEL_VARIANTS {
 
 }
 
-process FILTER_SNP_VARIANTS {
+process FILTER_VARIANTS {
     container "quay.io/biocontainers/bcftools:1.20--h8b25389_0"
-
+    publishDir "${params.outdir}/Final_joint_call"
     input: 
     tuple val(meta), path(marked_genotpye_vcf), path(raw_genotpye_index) 
     path(baitset)
@@ -203,25 +210,8 @@ process FILTER_SNP_VARIANTS {
 }
 
 
-process FILTER_INDEL_VARIANTS {
-    container "quay.io/biocontainers/bcftools:1.20--h8b25389_0"
-    input: 
-    tuple val(meta), path(marked_genotpye_vcf),  path(raw_genotpye_index) 
-    path(baitset)
-
-    output:
-    tuple val(meta), path("*_cohort_indels.marked.target.pass.vcf.gz"), path("*_cohort_snps.marked.target.pass.vcf.gz.tbi"), emit: filtered_variants
-    script:
-    """
-    bcftools view -f PASS ${marked_genotpye_vcf} \
-    -Oz -o "${meta.study}_cohort_indel.marked.target.pass.vcf.gz" \
-    -T ${baitset} 
-    tabix -p vcf "${meta.study}_cohort_indel.marked.target.pass.vcf.gz"
-    """
-
-}
-
 process ANNOTATE_VARIANTS {
+    publishDir "${params.outdir}/Final_joint_call"
     module "ensembl_vep/103.1"
     input:
     tuple val(meta), path(vcf_file)

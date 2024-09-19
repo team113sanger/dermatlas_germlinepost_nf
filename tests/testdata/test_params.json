@@ -1,8 +1,9 @@
 {
     "study_id": 6676,
     "geno_vcf": "/lustre/scratch124/jb63/germline/**.gz",
-    "sample_map": "$baseDir/tests/testdata/sample_map.txt",
+    "sample_map": "${baseDir}/tests/testdata/sample_map.txt",
     "reference_genome":"/lustre/scratch124/resources/dermatlas/germline/genome.fa",
-    "baitset": "/lustre/scratch124/resources/dermatlas/germline/GRCh38_WES5_canonical_pad100.merged.bed"
+    "baitset": "/lustre/scratch124/resources/dermatlas/germline/GRCh38_WES5_canonical_pad100.merged.bed",
+    "outdir": "results"
 
 }

@@ -4,3 +4,4 @@ execution_report*
 .nextflow/*
 .nf-test*
 .nf-test/*
+results/*
