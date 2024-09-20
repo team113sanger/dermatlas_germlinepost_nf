@@ -181,14 +181,14 @@ process MARK_VARIANTS {
     } else if (meta.variant_type == 'INDEL') {
         filter_to_apply = indel_filter
     } else {
-        error "Unknown variant type: ${meta.variant}"
+        error "Unknown variant type: ${meta.variant_type}"
     }
     """
     gatk --java-options "-Xmx8g -Xms8g" VariantFiltration \
     -V ${raw_genotpye_vcf} \
     -L ${baitset} \
      ${filter_to_apply} \
-    -O "${meta.study_id}_cohort_snps.marked.vcf.gz"
+    -O "${meta.study_id}${meta.suffix}.marked.vcf.gz"
     """
     stub:
     """
