@@ -256,6 +256,7 @@ process ANNOTATE_VARIANTS {
     }
 
 process CONVERT_TO_TSV {
+    container ""
     input: 
     tuple val(meta), path(vep_vcf), path(vep_index)
 
@@ -264,7 +265,7 @@ process CONVERT_TO_TSV {
     
     script:
     """
-    zcat ${vep_vcf} | /opt/repo/scripts/gatk_germline_full_vcf2table.v2.pl -> "${meta.study_id}_cohort_snps.marked.target.pass.vep.tsv"
+    zcat ${vep_vcf} | /opt/repo/scripts/gatk_germline_full_vcf2table.v2.pl -> "${meta.study_id}${meta.suffix}.marked.target.pass.vep.tsv"
     gzip "${meta.study_id}${meta.suffix}.marked.target.pass.vep.tsv"
     """
 }
