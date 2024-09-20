@@ -201,7 +201,7 @@ process MARK_VARIANTS {
 
 process FILTER_VARIANTS {
     container "quay.io/biocontainers/bcftools:1.20--h8b25389_0"
-    publishDir "${params.outdir}/Final_joint_call"
+    publishDir "${params.outdir}/Final_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(marked_genotpye_vcf), path(marked_genotpye_index)
     path(baitset)
@@ -225,7 +225,7 @@ process FILTER_VARIANTS {
 
 
 process ANNOTATE_VARIANTS {
-    publishDir "${params.outdir}/Final_joint_call"
+    publishDir "${params.outdir}/Final_joint_call", mode: "copy"
     container "ensemblorg/ensembl-vep:release_103.1"
     input:
     tuple val(meta), path(vcf_file), path(vcf_index)
@@ -240,7 +240,7 @@ process ANNOTATE_VARIANTS {
     output: 
     tuple val(meta), path("*vep.vcf.gz"),path("*vep.vcf.gz.tbi"), emit: vep_annotation
     script: 
-    def outfname = "${vcf_file}".replace(".vcf.gz", "") + "vep.vcf.gz"
+    def outfname = "${vcf_file}".replace(".vcf.gz", "") + ".vep.vcf.gz"
     """
     vep -i ${vcf_file} \
     --dir ${vep_cache} \
