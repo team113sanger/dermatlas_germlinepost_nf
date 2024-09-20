@@ -139,7 +139,7 @@ process SELECT_VARIANTS {
     gatk --java-options "-Xmx8g -Xms8g" SelectVariants \
      -V ${raw_genotpye_vcf} \
     -select-type ${meta.variant_type} \
-    -O "${meta.study}${meta.suffix}.vcf.gz"
+    -O "${meta.study_id}${meta.suffix}.vcf.gz"
     """
 
     stub: 
@@ -152,7 +152,7 @@ process SELECT_VARIANTS {
 
 
 
-process MARK_SNP_VARIANTS {
+process MARK_VARIANTS {
     container "broadinstitute/gatk:4.2.6.1"
     publishDir "${params.outdir}/Final_joint_call"
     input: 
@@ -161,19 +161,34 @@ process MARK_SNP_VARIANTS {
 
     output:
     tuple val(meta), path("*marked.vcf.gz"), path("*marked.vcf.gz.tbi"), emit: marked_variants
+    
     script:
+    def snp_filter  =  '-filter "QD < 2.0" --filter-name "QD2" ' +
+                       '-filter "QUAL < 30.0" --filter-name "QUAL30" ' +
+                       '-filter "SOR > 3.0" --filter-name "SOR3" ' +
+                       '-filter "FS > 60.0" --filter-name "FS60" ' +
+                       '-filter "MQ < 40.0" --filter-name "MQ40" ' +
+                       '-filter "MQRankSum < -12.5" --filter-name "MQRankSum-12.5" ' +
+                       ' -filter "ReadPosRankSum < -8.0" --filter-name "ReadPosRankSum-8"' 
+    def indel_filter = '-filter "QD < 2.0" --filter-name "QD2" ' +
+                       '-filter "QUAL < 30.0" --filter-name "QUAL30" ' +
+                       '-filter "FS > 200.0" --filter-name "FS200" ' +
+                       '-filter "ReadPosRankSum < -20.0" --filter-name "ReadPosRankSum-20"'
+        // Assign the appropriate filter based on meta.variant
+    def filter_to_apply
+    if (meta.variant_type == 'SNP') {
+        filter_to_apply = snp_filter
+    } else if (meta.variant_type == 'INDEL') {
+        filter_to_apply = indel_filter
+    } else {
+        error "Unknown variant type: ${meta.variant}"
+    }
     """
     gatk --java-options "-Xmx8g -Xms8g" VariantFiltration \
     -V ${raw_genotpye_vcf} \
     -L ${baitset} \
-    -filter "QD < 2.0" --filter-name "QD2" \
-    -filter "QUAL < 30.0" --filter-name "QUAL30" \
-    -filter "SOR > 3.0" --filter-name "SOR3" \
-    -filter "FS > 60.0" --filter-name "FS60" \
-    -filter "MQ < 40.0" --filter-name "MQ40" \
-    -filter "MQRankSum < -12.5" --filter-name "MQRankSum-12.5" \
-    -filter "ReadPosRankSum < -8.0" --filter-name "ReadPosRankSum-8" \
-    -O "${meta.study}_cohort_snps.marked.vcf.gz"
+     ${filter_to_apply} \
+    -O "${meta.study_id}_cohort_snps.marked.vcf.gz"
     """
     stub:
     """
@@ -183,34 +198,6 @@ process MARK_SNP_VARIANTS {
 
 }
 
-
-process MARK_INDEL_VARIANTS {
-    container "broadinstitute/gatk:4.2.6.1"
-    publishDir "${params.outdir}/Final_joint_call"
-    input: 
-    tuple val(meta), path(raw_genotpye_vcf), path(raw_genotpye_index)
-    path(baitset)
-
-    output:
-    tuple val(meta), path("*.marked.vcf.gz"), path("*.marked.vcf.gz.tbi"), emit: marked_variants
-    script:
-    """
-    gatk --java-options "-Xmx8g -Xms8g" VariantFiltration \
-    -V ${raw_genotpye_vcf} \
-    -L ${baitset} \
-    -filter "QD < 2.0" --filter-name "QD2" \
-    -filter "QUAL < 30.0" --filter-name "QUAL30" \
-    -filter "FS > 200.0" --filter-name "FS200" \
-    -filter "ReadPosRankSum < -20.0" --filter-name "ReadPosRankSum-20" \
-    -O "${meta.study_id}${meta.suffix}.marked.vcf.gz"
-    """
-    stub:
-    """
-    echo stub > TBC.marked.vcf.gz
-    echo stub > TBC.marked.vcf.gz.tbi
-    """
-
-}
 
 process FILTER_VARIANTS {
     container "quay.io/biocontainers/bcftools:1.20--h8b25389_0"
