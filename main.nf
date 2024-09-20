@@ -86,5 +86,6 @@ workflow {
                       cosmic_file,
                       reference_genome)
 
-    // CONVERT_TO_TSV(ANNOTATE_VARIANTS.out.vep_annotation)
+    CONVERT_TO_TSV(ANNOTATE_SNP_VARIANTS.out.vep_annotation,
+                   ANNOTATE_INDEL_VARIANTS.out.vep_annotation)
 }

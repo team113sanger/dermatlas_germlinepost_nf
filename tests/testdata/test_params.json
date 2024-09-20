@@ -7,10 +7,10 @@
     "outdir": "results",
     "vep_cache": "/lustre/scratch124/resources/vep/cache/103",
     "vep_config": "${baseDir}/assets/vep_config.ini",
-    "gnomad_file": "/lustre/scratch124/resources/vep/gnomad/v3.1.2/gnomad.genomes.v3.1.2.short.vcf.gz",
-    "dbsnp_file": "/lustre/scratch124/resources/vep/dbsnp/155/dbSNP155.GRCh38.GCF_000001405.39.mod.vcf.gz",
-    "clinvar_file": "/lustre/scratch124/resources/vep/clinvar/20230121/clinvar_20230121.chr.canonical.vcf.gz",
-    "cosmic_file": "/lustre/scratch124/resources/vep/cosmic/v97/CosmicV97Coding_Noncoding.normal.counts.vcf.gz"
+    "gnomad_file": "/lustre/scratch124/resources/vep/gnomad/v3.1.2/gnomad.genomes.v3.1.2.short.vcf.gz{,.tbi}",
+    "dbsnp_file": "/lustre/scratch124/resources/vep/dbsnp/155/dbSNP155.GRCh38.GCF_000001405.39.mod.vcf.gz{,.tbi}",
+    "clinvar_file": "/lustre/scratch124/resources/vep/clinvar/20230121/clinvar_20230121.chr.canonical.vcf.gz{,.tbi}",
+    "cosmic_file": "/lustre/scratch124/resources/vep/cosmic/v97/CosmicV97Coding_Noncoding.normal.counts.vcf.gz{,.tbi}"
 
 
 }

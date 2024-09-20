@@ -238,34 +238,34 @@ process ANNOTATE_VARIANTS {
     path(ref_genome)
     
     output: 
-    tuple val(meta), path("*vep.vcf.gz"), emit: vep_annotation
+    tuple val(meta), path("*vep.vcf.gz"),path("*vep.vcf.gz.tbi"), emit: vep_annotation
     script: 
-    def custom = "--custom $gnomadfile,gnomAD,vcf,exact,0,FLAG,AF --custom $clinvarfile,ClinVar,vcf,exact,0,CLNSIG,CLNREVSTAT --custom $dbsnpfile,dbSNP,vcf,exact,0, --custom $cosmicfile,COSMIC,vcf,exact,0,CNT"
     def outfname = "${vcf_file}".replace(".vcf.gz", "") + "vep.vcf.gz"
-    
     """
     vep -i ${vcf_file} \
     --dir ${vep_cache} \
     --config ${vep_config} \
     --output_file ${outfname}
+    tabix -p vcf ${outfname}
     """
     stub: 
     """
     echo stub > item.vep.vcf.gz
+    echo stub > item.vep.vcf.gz.tbi
     """
     }
 
 process CONVERT_TO_TSV {
     input: 
-    tuple val(meta), path(vep_vcf)
+    tuple val(meta), path(vep_vcf), path(vep_index)
 
     output: 
     tuple val(meta), path("*.marked.target.pass.vep.tsv.gz")
     
     script:
     """
-    zcat ${vep_vcf} | gatk_germline_full_vcf2table.v2.pl -> "${meta.study_id}_cohort_snps.marked.target.pass.vep.tsv"
-    gzip "${meta.study_id}_cohort_snps.marked.target.pass.vep.tsv"
+    zcat ${vep_vcf} | /opt/repo/scripts/gatk_germline_full_vcf2table.v2.pl -> "${meta.study_id}_cohort_snps.marked.target.pass.vep.tsv"
+    gzip "${meta.study_id}${meta.suffix}.marked.target.pass.vep.tsv"
     """
 }
 
