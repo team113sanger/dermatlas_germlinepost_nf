@@ -229,21 +229,25 @@ process ANNOTATE_VARIANTS {
     container "ensemblorg/ensembl-vep:release_103.1"
     input:
     tuple val(meta), path(vcf_file)
+    path(vep_cache)
     path(vep_config)
     path(gnomadfile)
-    path(clinvarfile)
     path(dbsnpfile)
+    path(clinvarfile)
     path(cosmicfile)
     
     output: 
     tuple val(meta), path("*vep.vcf.gz"), emit: vep_annotation
     script: 
     def custom = "--custom $gnomadfile,gnomAD,vcf,exact,0,FLAG,AF --custom $clinvarfile,ClinVar,vcf,exact,0,CLNSIG,CLNREVSTAT --custom $dbsnpfile,dbSNP,vcf,exact,0, --custom $cosmicfile,COSMIC,vcf,exact,0,CNT"
-    def outfname = meta.id + "vep.vcf.gz"
+    def outfname = "${vcf_file}".replace(".vcf.gz", "") + "vep.vcf.gz"
+    
     """
     vep -i ${vcf_file} \
-    --config ${vep_config}
-    --output_file TBC
+    --dir ${vep_cache} \
+    ${custom} \
+    --config ${vep_config} \
+    --output_file ${outfname}
     """
     stub: 
     """

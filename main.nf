@@ -4,12 +4,19 @@ include { GENERATE_GENOMICS_DB;GATK_GVCF_PER_CHROM;
           CREATE_DICT;MERGE_COHORT_VCF;INDEX_COHORT_VCF;
           SELECT_VARIANTS as SELECT_SNP_VARIANTS;SELECT_VARIANTS as SELECT_INDEL_VARIANTS;
           MARK_VARIANTS as MARK_SNP_VARIANTS; MARK_VARIANTS as  MARK_INDEL_VARIANTS;
-          FILTER_VARIANTS as FILTER_SNP_VARIANTS;FILTER_VARIANTS as FILTER_INDEL_VARIANTS} from './subworkflows/germline_post.nf'
+          FILTER_VARIANTS as FILTER_SNP_VARIANTS;FILTER_VARIANTS as FILTER_INDEL_VARIANTS;
+          ANNOTATE_VARIANTS} from './subworkflows/germline_post.nf'
 
 workflow {
     sample_map = file(params.sample_map, checkIfExists: true)
     baitset = file(params.baitset, checkIfExists: true)
     reference_genome = file(params.reference_genome, checkIfExists: true)
+    vep_cache = file(params.vep_cache, checkIfExists: true)
+    vep_config = file(params.vep_config, checkIfExists: true)
+    gnomad_file = file(params.gnomad_file, checkIfExists: true)
+    dbsnp_file = file(params.dbsnp_file, checkIfExists: true)
+    clinvar_file = file(params.clinvar_file, checkIfExists: true)
+    cosmic_file = file(params.cosmic_file, checkIfExists: true)
     
     chroms = Channel.fromPath("$baseDir/assets/grch38_chromosome.txt")
     | splitCsv(sep:"\t")
@@ -62,7 +69,13 @@ workflow {
     FILTER_SNP_VARIANTS(MARK_SNP_VARIANTS.out.marked_variants, baitset)
     FILTER_INDEL_VARIANTS(MARK_INDEL_VARIANTS.out.marked_variants,  baitset)
     
-    // ANNOTATE_VARIANTS(FILTER_SNP_VARIANTS.out.filtered_variants)
+    ANNOTATE_VARIANTS(FILTER_SNP_VARIANTS.out.filtered_variants, 
+                      vep_cache, 
+                      vep_config,
+                      gnomad_file,
+                      dbsnp_file,
+                      clinvar_file,
+                      cosmic_file)
     // //ANNOTATE_VARIANTS(MARK_INDEL_VARIANTS.out.filtered_variants)
 
     // CONVERT_TO_TSV(ANNOTATE_VARIANTS.out.vep_annotation)
