@@ -169,7 +169,7 @@ process MARK_VARIANTS {
                        '-filter "FS > 60.0" --filter-name "FS60" ' +
                        '-filter "MQ < 40.0" --filter-name "MQ40" ' +
                        '-filter "MQRankSum < -12.5" --filter-name "MQRankSum-12.5" ' +
-                       ' -filter "ReadPosRankSum < -8.0" --filter-name "ReadPosRankSum-8"' 
+                       '-filter "ReadPosRankSum < -8.0" --filter-name "ReadPosRankSum-8"' 
     def indel_filter = '-filter "QD < 2.0" --filter-name "QD2" ' +
                        '-filter "QUAL < 30.0" --filter-name "QUAL30" ' +
                        '-filter "FS > 200.0" --filter-name "FS200" ' +
@@ -256,7 +256,7 @@ process ANNOTATE_VARIANTS {
     }
 
 process CONVERT_TO_TSV {
-    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline/feature/dockerise:e17aaf77"
+    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline/feature/dockerise:d1a99a96"
     publishDir "${params.outdir}/Final_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(vep_vcf), path(vep_index)
@@ -273,8 +273,8 @@ process CONVERT_TO_TSV {
 
 
 process COMBINED_SUMMARY{
-    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline/feature/dockerise:e17aaf77"
-    publishDir "results", mode: 'copy'
+    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline/feature/dockerise:d1a99a96"
+    publishDir "results/Final_joint_call/sumtabs", mode: 'copy'
 
     input: 
     tuple val(meta), path(VEP_SNP_TSVGZ)
@@ -285,9 +285,9 @@ process COMBINED_SUMMARY{
 
 
     output:
-    tuple val(meta), path("**.marked.target.pass.vep.gnmadF.tsv.gz"), emit: outfile
-    tuple val(meta), path("*/*.tsv.gz"), emit: summary
-    tuple val(meta), path("*/*.xlsx"), emit: xlsheets
+    tuple val(meta), path("*.marked.target.pass.vep.gnmadF.tsv.gz"), emit: outfile
+    tuple val(meta), path("*.tsv.gz"), emit: summary
+    tuple val(meta), path("*.xlsx"), emit: xlsheets
 
 
     script:
@@ -304,7 +304,9 @@ process COMBINED_SUMMARY{
 }
 
 process CONVERT_TO_MAF {
-    publishDir "results", mode: 'copy'
+    publishDir "results/Final_joint_call/sumtabs", mode: 'copy'
+    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline/feature/dockerise:d1a99a96"
+
 
     input:
     tuple val(meta), path(SNP_INDEL_GNAMDF_TSVGZ)
@@ -312,16 +314,16 @@ process CONVERT_TO_MAF {
     path(CANCER_GENE_CENSUS)
 
     output: 
-    path "*cohort_snps.indel.marked.target.pass.vep.gnmadF.maf.gz", emit: maf
+    path ("*cohort_snps.indel.marked.target.pass.vep.gnmadF.maf.gz"), emit: maf
     path("oncplots/*"), emit: oncoplots
     script: 
     """
-   /opt/repo/scripts/convert_germ_sumtsv_to_MAF_plot.R \
+    /opt/repo/scripts/convert_germ_sumtsv_to_MAF_plot.R \
     --study_id ${meta.study_id} \
     --input_germ_tsv ${SNP_INDEL_GNAMDF_TSVGZ} \
     --germ_pred_tsv ${NIH_GERMLINE_TSV} \
     --cgc_tsv ${CANCER_GENE_CENSUS} \
-    --outdir ${SUMTABDIR}
+    --outdir "."
     """
 
 }
