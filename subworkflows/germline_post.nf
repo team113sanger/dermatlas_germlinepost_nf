@@ -2,6 +2,7 @@
 process GENERATE_GENOMICS_DB {
     container "broadinstitute/gatk:4.2.6.1"
     publishDir "${params.outdir}"
+    
     input: 
     path(SAMPLE_MAP)
     val(chroms)
@@ -67,7 +68,7 @@ process GATK_GVCF_PER_CHROM {
     gatk --java-options "-Xmx4g -Xms4g" GenotypeGVCFs \
        -R "${ref_genome_file}" \
        -V gendb://${GENDB} \
-       -L $CHR[0] \
+       -L ${CHR[0]} \
        -O ${CHR[0]}.vcf.gz \
        --genomicsdb-shared-posixfs-optimizations true 
     """
@@ -116,6 +117,11 @@ process INDEX_COHORT_VCF {
     gatk --java-options "-Xmx8g -Xms8g" IndexFeatureFile \
     -I ${cohort_vcf}
     """
+    stub:
+    """
+    echo stub > TBC.vcf.gz
+    echo stub > TBC.vcf.gz.tbi
+    """
 
 }
 
@@ -126,7 +132,7 @@ process SELECT_VARIANTS {
     tuple val(meta), path(raw_genotpye_vcf),  path(raw_genotpye_index) 
 
     output:
-    tuple val(meta), path("*_cohort_raw_snps.vcf.gz"), emit: raw_variants
+    tuple val(meta), path("*.vcf.gz"), emit: raw_variants
     
     script:
     """
@@ -134,6 +140,11 @@ process SELECT_VARIANTS {
      -V ${raw_genotpye_vcf} \
     -select-type ${meta.variant_type} \
     -O "${meta.study}${meta.ext}.vcf.gz"
+    """
+
+    stub: 
+    """
+    echo stub > "${meta.study}${meta.ext}.vcf.gz"
     """
 
 }
@@ -148,7 +159,7 @@ process MARK_SNP_VARIANTS {
     path(baitset)
 
     output:
-    tuple val(meta), path("*_cohort_raw_snps.vcf.gz"), emit: marked_variants
+    tuple val(meta), path("*marked.vcf.gz"), emit: marked_variants
     script:
     """
     gatk --java-options "-Xmx8g -Xms8g" VariantFiltration \
@@ -163,6 +174,10 @@ process MARK_SNP_VARIANTS {
     -filter "ReadPosRankSum < -8.0" --filter-name "ReadPosRankSum-8" \
     -O "${meta.study}_cohort_snps.marked.vcf.gz"
     """
+    stub:
+    """
+    echo stub > "${meta.study}${meta.ext}.marked.vcf.gz"
+    """
 
 }
 
@@ -175,7 +190,7 @@ process MARK_INDEL_VARIANTS {
     path(baitset)
 
     output:
-    tuple val(meta), path("*_cohort_indel.marked.vcf.gz"), emit: marked_variants
+    tuple val(meta), path("*.marked.vcf.gz"), emit: marked_variants
     script:
     """
     gatk --java-options "-Xmx8g -Xms8g" VariantFiltration \
@@ -186,6 +201,10 @@ process MARK_INDEL_VARIANTS {
     -filter "FS > 200.0" --filter-name "FS200" \
     -filter "ReadPosRankSum < -20.0" --filter-name "ReadPosRankSum-20" \
     -O "${meta.study}_cohort_indel.marked.vcf.gz"
+    """
+    stub:
+    """
+    echo stub > "${meta.study}${meta.ext}.marked.vcf.gz"
     """
 
 }
@@ -198,13 +217,17 @@ process FILTER_VARIANTS {
     path(baitset)
 
     output:
-    tuple val(meta), path("*_cohort_snps.marked.target.pass.vcf.gz"), path("*_cohort_snps.marked.target.pass.vcf.gz.tbi"), emit: filtered_variants
+    tuple val(meta), path("*.target.pass.vcf.gz"), path("*.target.pass.vcf.gz.tbi"), emit: filtered_variants
     script:
     """
     bcftools view -f PASS ${marked_genotpye_vcf} \
     -Oz -o "${meta.study}_cohort_snps.marked.target.pass.vcf.gz" \
     -T ${baitset} 
-    tabix -p vcf "${meta.study}_cohort_snps.marked.target.pass.vcf.gz"
+    tabix -p vcf "${meta.study}${meta.externsion}.marked.target.pass.vcf.gz"
+    """
+    stub:
+    """
+    echo stub > demo.marked.target.pass.vcf.gz
     """
 
 }
@@ -255,7 +278,11 @@ process ANNOTATE_VARIANTS {
     --domain --transcript_version \
     --show_ref_allele --fork 4
     """
-}
+    stub: 
+    """
+    echo stub > item.vep.vcf.gz
+    """
+    }
 
 process CONVERT_TO_TSV {
     input: 
