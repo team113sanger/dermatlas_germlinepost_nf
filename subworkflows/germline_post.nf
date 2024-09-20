@@ -93,7 +93,7 @@ process MERGE_COHORT_VCF {
     """
     gatk --java-options "-Xmx8g -Xms8g" GatherVcfs \
     ${vcf_file_list.collect{ f -> "-I ${f}" }.join(' ')} \
-    -O "TBC_cohort_raw_genotypegvcf.vcf.gz"
+    -O "${meta.study_id}_cohort_raw_genotypegvcf.vcf.gz"
     """
     stub:
     """
@@ -129,22 +129,23 @@ process SELECT_VARIANTS {
     container "broadinstitute/gatk:4.2.6.1"
     publishDir "${params.outdir}/Final_joint_call"
     input: 
-    tuple val(meta), path(raw_genotpye_vcf),  path(raw_genotpye_index) 
+    tuple val(meta), path(raw_genotpye_vcf), path(raw_genotpye_index) 
 
     output:
-    tuple val(meta), path("*.vcf.gz"), emit: raw_variants
+    tuple val(meta), path("*.vcf.gz"), path("*.vcf.gz.tbi"), emit: raw_variants
     
     script:
     """
     gatk --java-options "-Xmx8g -Xms8g" SelectVariants \
      -V ${raw_genotpye_vcf} \
     -select-type ${meta.variant_type} \
-    -O "${meta.study}${meta.ext}.vcf.gz"
+    -O "${meta.study}${meta.suffix}.vcf.gz"
     """
 
     stub: 
     """
-    echo stub > "${meta.study}${meta.ext}.vcf.gz"
+    echo stub > TBC.vcf.gz
+    echo stub > TBC_index.vcf.gz.tbi
     """
 
 }
@@ -155,11 +156,11 @@ process MARK_SNP_VARIANTS {
     container "broadinstitute/gatk:4.2.6.1"
     publishDir "${params.outdir}/Final_joint_call"
     input: 
-    tuple val(meta), path(raw_genotpye_vcf),  path(raw_genotpye_index) 
+    tuple val(meta), path(raw_genotpye_vcf), path(raw_genotpye_index)
     path(baitset)
 
     output:
-    tuple val(meta), path("*marked.vcf.gz"), emit: marked_variants
+    tuple val(meta), path("*marked.vcf.gz"), path("*marked.vcf.gz.tbi"), emit: marked_variants
     script:
     """
     gatk --java-options "-Xmx8g -Xms8g" VariantFiltration \
@@ -176,7 +177,8 @@ process MARK_SNP_VARIANTS {
     """
     stub:
     """
-    echo stub > "${meta.study}${meta.ext}.marked.vcf.gz"
+    echo stub > TBC.marked.vcf.gz
+    echo stub > TBC.marked.vcf.gz.tbi
     """
 
 }
@@ -186,11 +188,11 @@ process MARK_INDEL_VARIANTS {
     container "broadinstitute/gatk:4.2.6.1"
     publishDir "${params.outdir}/Final_joint_call"
     input: 
-    tuple val(meta), path(raw_genotpye_vcf),  path(raw_genotpye_index) 
+    tuple val(meta), path(raw_genotpye_vcf), path(raw_genotpye_index)
     path(baitset)
 
     output:
-    tuple val(meta), path("*.marked.vcf.gz"), emit: marked_variants
+    tuple val(meta), path("*.marked.vcf.gz"), path("*.marked.vcf.gz.tbi"), emit: marked_variants
     script:
     """
     gatk --java-options "-Xmx8g -Xms8g" VariantFiltration \
@@ -200,11 +202,12 @@ process MARK_INDEL_VARIANTS {
     -filter "QUAL < 30.0" --filter-name "QUAL30" \
     -filter "FS > 200.0" --filter-name "FS200" \
     -filter "ReadPosRankSum < -20.0" --filter-name "ReadPosRankSum-20" \
-    -O "${meta.study}_cohort_indel.marked.vcf.gz"
+    -O "${meta.study_id}${meta.suffix}.marked.vcf.gz"
     """
     stub:
     """
-    echo stub > "${meta.study}${meta.ext}.marked.vcf.gz"
+    echo stub > TBC.marked.vcf.gz
+    echo stub > TBC.marked.vcf.gz.tbi
     """
 
 }
@@ -213,7 +216,7 @@ process FILTER_VARIANTS {
     container "quay.io/biocontainers/bcftools:1.20--h8b25389_0"
     publishDir "${params.outdir}/Final_joint_call"
     input: 
-    tuple val(meta), path(marked_genotpye_vcf), path(raw_genotpye_index) 
+    tuple val(meta), path(marked_genotpye_vcf), path(marked_genotpye_index)
     path(baitset)
 
     output:
@@ -221,13 +224,14 @@ process FILTER_VARIANTS {
     script:
     """
     bcftools view -f PASS ${marked_genotpye_vcf} \
-    -Oz -o "${meta.study}_cohort_snps.marked.target.pass.vcf.gz" \
+    -Oz -o "${meta.study}${meta.suffix}.marked.target.pass.vcf.gz" \
     -T ${baitset} 
-    tabix -p vcf "${meta.study}${meta.externsion}.marked.target.pass.vcf.gz"
+    tabix -p vcf "${meta.study}${meta.suffix}.marked.target.pass.vcf.gz"
     """
     stub:
     """
     echo stub > demo.marked.target.pass.vcf.gz
+    echo stub > demo.marked.target.pass.vcf.gz.tbi
     """
 
 }

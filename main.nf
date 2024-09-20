@@ -38,27 +38,29 @@ workflow {
     | map {it -> tuple([study_id: params.study_id], it)}
     
     MERGE_COHORT_VCF(gvcf_chrom_files)
+    INDEX_COHORT_VCF(MERGE_COHORT_VCF.out.cohort_vcf)
+    // INDEX_COHORT_VCF.out.
 
- 
-    // INDEX_COHORT_VCF(MERGE_COHORT_VCF.out.cohort_vcf)
+    INDEX_COHORT_VCF.out.indexed_cohort_vcf
+    | map {meta, file, index -> 
+       tuple(meta + ["variant_type": "SNP", "suffix": "_cohort_raw_snps"], file, index)}
+    | set {snp_ch}
 
-    // MERGE_COHORT_VCF.out.cohort_vcf
-    // | map {meta, file -> meta + ["variant_type": "SNP", "suffix": "_cohort_raw_snps"]}
-    // | set {snp_ch}
+    INDEX_COHORT_VCF.out.indexed_cohort_vcf
+    | map {meta, file, index -> 
+    tuple(meta + ["variant_type": "INDEL", "suffix": "_cohort_indel_raw"], file, index)}
+    | set {indel_ch}
 
-    // MERGE_COHORT_VCF.out.cohort_vcf
-    // | map {meta, file -> meta + ["variant_type": "INDEL", "suffix": "_cohort_indel_raw"]}
-    // | set {indel_ch}
+
     
-    
-    // SELECT_SNP_VARIANTS(snp_ch)
-    // SELECT_INDEL_VARIANTS(indel_ch)
+    SELECT_SNP_VARIANTS(snp_ch)
+    SELECT_INDEL_VARIANTS(indel_ch)
 
-    // MARK_SNP_VARIANTS(SELECT_SNP_VARIANTS.out.raw_variants,baitset)
-    // MARK_INDEL_VARIANTS(SELECT_INDEL_VARIANTS.out.raw_variants, baitset)
+    MARK_SNP_VARIANTS(SELECT_SNP_VARIANTS.out.raw_variants, baitset)
+    MARK_INDEL_VARIANTS(SELECT_INDEL_VARIANTS.out.raw_variants, baitset)
 
-    // FILTER_SNP_VARIANTS(MARK_SNP_VARIANTS.out.marked_variants)
-    // FILTER_INDEL_VARIANTS(MARK_INDEL_VARIANTS.out.marked_variants)
+    FILTER_SNP_VARIANTS(MARK_SNP_VARIANTS.out.marked_variants, baitset)
+    FILTER_INDEL_VARIANTS(MARK_INDEL_VARIANTS.out.marked_variants,  baitset)
     
     // ANNOTATE_VARIANTS(FILTER_SNP_VARIANTS.out.filtered_variants)
     // //ANNOTATE_VARIANTS(MARK_INDEL_VARIANTS.out.filtered_variants)
