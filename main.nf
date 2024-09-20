@@ -6,7 +6,8 @@ include { GENERATE_GENOMICS_DB;GATK_GVCF_PER_CHROM;
           MARK_VARIANTS as MARK_SNP_VARIANTS; MARK_VARIANTS as  MARK_INDEL_VARIANTS;
           FILTER_VARIANTS as FILTER_SNP_VARIANTS;FILTER_VARIANTS as FILTER_INDEL_VARIANTS;
           ANNOTATE_VARIANTS as ANNOTATE_SNP_VARIANTS;ANNOTATE_VARIANTS as ANNOTATE_INDEL_VARIANTS;
-          CONVERT_TO_TSV as CONVERT_SNP_TO_TSV;CONVERT_TO_TSV as CONVERT_INDEL_TO_TSV;} from './subworkflows/germline_post.nf'
+          CONVERT_TO_TSV as CONVERT_SNP_TO_TSV;CONVERT_TO_TSV as CONVERT_INDEL_TO_TSV;
+          COMBINED_SUMMARY; CONVERT_TO_MAF} from './subworkflows/germline_post.nf'
 
 workflow {
     sample_map = file(params.sample_map, checkIfExists: true)
@@ -18,6 +19,9 @@ workflow {
     dbsnp_file = file(params.dbsnp_file, checkIfExists: true)
     clinvar_file = file(params.clinvar_file, checkIfExists: true)
     cosmic_file = file(params.cosmic_file, checkIfExists: true)
+    nih_germline_resource =   file(params.nih_germline_resource, checkIfExists: true)
+    cancer_gene_census_resoruce = file(params.cancer_gene_census_resoruce, checkIfExists: true)
+    flag_genes =  file(params.flag_genes, checkIfExists: true)
     
     chroms = Channel.fromPath("$baseDir/assets/grch38_chromosome.txt")
     | splitCsv(sep:"\t")
@@ -88,5 +92,13 @@ workflow {
                       reference_genome)
 
     CONVERT_SNP_TO_TSV(ANNOTATE_SNP_VARIANTS.out.vep_annotation)
-    // CONVERT_INDEL_TO_TSV(ANNOTATE_INDEL_VARIANTS.out.vep_annotation)
+    CONVERT_INDEL_TO_TSV(ANNOTATE_INDEL_VARIANTS.out.vep_annotation)
+    COMBINED_SUMMARY(CONVERT_SNP_TO_TSV.out.tsv_file,
+                     CONVERT_INDEL_TO_TSV.out.tsv_file,
+                    nih_germline_resource,
+                    cancer_gene_census_resoruce,
+                    flag_genes)
+    CONVERT_TO_MAF(COMBINED_SUMMARY.out.outfile,
+                        nih_germline_resource,
+                        cancer_gene_census_resoruce)
 }
