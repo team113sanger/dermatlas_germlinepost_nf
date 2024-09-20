@@ -211,9 +211,9 @@ process FILTER_VARIANTS {
     script:
     """
     bcftools view -f PASS ${marked_genotpye_vcf} \
-    -Oz -o "${meta.study}${meta.suffix}.marked.target.pass.vcf.gz" \
+    -Oz -o "${meta.study_id}${meta.suffix}.marked.target.pass.vcf.gz" \
     -T ${baitset} 
-    tabix -p vcf "${meta.study}${meta.suffix}.marked.target.pass.vcf.gz"
+    tabix -p vcf "${meta.study_id}${meta.suffix}.marked.target.pass.vcf.gz"
     """
     stub:
     """
@@ -284,8 +284,8 @@ process CONVERT_TO_TSV {
     
     script:
     """
-    zcat ${vep_vcf} | gatk_germline_full_vcf2table.v2.pl -> "${meta.study}_cohort_snps.marked.target.pass.vep.tsv"
-    gzip "${meta.study}_cohort_snps.marked.target.pass.vep.tsv"
+    zcat ${vep_vcf} | gatk_germline_full_vcf2table.v2.pl -> "${meta.study_id}_cohort_snps.marked.target.pass.vep.tsv"
+    gzip "${meta.study_id}_cohort_snps.marked.target.pass.vep.tsv"
     """
 }
 
@@ -308,7 +308,7 @@ process COMBINED_SUMMARY{
     script:
     """
     get_XSLX_andfilt_COSMIC_and_clinvar_PATHVars.R \
-    --study_id ${meta.study} \
+    --study_id ${meta.study_id} \
     --input_snv_tsv ${VEP_SNP_TSVGZ} \
     --input_indel_tsv ${VEP_INDEL_TSVGZ} \
     --germ_pred_tsv ${NIH_GERMLINE_TSV} \
@@ -330,7 +330,7 @@ process CONVERT_TO_MAF {
     script: 
     """
     convert_germ_sumtsv_to_MAF_plot.R \
-    --study_id ${meta.study} \
+    --study_id ${meta.study_id} \
     --input_germ_tsv ${SNP_INDEL_GNAMDF_TSVGZ} \
     --germ_pred_tsv ${NIH_GERMLINE_TSV} \
     --cgc_tsv ${CANCER_GENE_CENSUS} \
