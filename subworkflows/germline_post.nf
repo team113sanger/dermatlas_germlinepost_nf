@@ -1,7 +1,7 @@
 
 process GENERATE_GENOMICS_DB {
     container "broadinstitute/gatk:4.2.6.1"
-    publishDir "${params.outdir}"
+    publishDir "${params.outdir}", mode: "copy"
     
     input: 
     path(SAMPLE_MAP)
@@ -54,7 +54,7 @@ process CREATE_DICT {
 process GATK_GVCF_PER_CHROM {
     tag {CHR[0]}
     container "broadinstitute/gatk:4.2.6.1"
-    publishDir "${params.outdir}/Raw_joint_call"
+    publishDir "${params.outdir}/Raw_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(GENDB)
     tuple path(ref_genome_file), path(ref_genome_dict), path(reference_idx)
@@ -82,7 +82,7 @@ process GATK_GVCF_PER_CHROM {
 
 process MERGE_COHORT_VCF {
     container "broadinstitute/gatk:4.2.6.1"
-    publishDir "${params.outdir}/Raw_joint_call"
+    publishDir "${params.outdir}/Raw_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(vcf_file_list)
 
@@ -102,7 +102,7 @@ process MERGE_COHORT_VCF {
 }
 
 process INDEX_COHORT_VCF {
-    publishDir "${params.outdir}/Raw_joint_call"
+    publishDir "${params.outdir}/Raw_joint_call", mode: "copy"
     container "broadinstitute/gatk:4.2.6.1"
 
     input: 
@@ -127,7 +127,7 @@ process INDEX_COHORT_VCF {
 
 process SELECT_VARIANTS {
     container "broadinstitute/gatk:4.2.6.1"
-    publishDir "${params.outdir}/Final_joint_call"
+    publishDir "${params.outdir}/Final_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(raw_genotpye_vcf), path(raw_genotpye_index) 
 
@@ -154,7 +154,7 @@ process SELECT_VARIANTS {
 
 process MARK_VARIANTS {
     container "broadinstitute/gatk:4.2.6.1"
-    publishDir "${params.outdir}/Final_joint_call"
+    publishDir "${params.outdir}/Final_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(raw_genotpye_vcf), path(raw_genotpye_index)
     path(baitset)
