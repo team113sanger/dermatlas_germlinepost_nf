@@ -226,17 +226,14 @@ process FILTER_VARIANTS {
 
 process ANNOTATE_VARIANTS {
     publishDir "${params.outdir}/Final_joint_call"
-    module "ensembl_vep/103.1"
+    container "ensemblorg/ensembl-vep:release_103.1"
     input:
     tuple val(meta), path(vcf_file)
+    path(vep_config)
     path(gnomadfile)
     path(clinvarfile)
     path(dbsnpfile)
     path(cosmicfile)
-    val(ens_ver)
-    val(species)
-    val(assembly)
-    path(vep_cache)
     
     output: 
     tuple val(meta), path("*vep.vcf.gz"), emit: vep_annotation
@@ -245,29 +242,8 @@ process ANNOTATE_VARIANTS {
     def outfname = meta.id + "vep.vcf.gz"
     """
     vep -i ${vcf_file} \
-    --cache_version $ens_ver \
-    -t SO \
-    --format vcf \
-    -o $outfname \
-    --cache \
-    --dir $vep_cache \
-    --buffer 20000 \
-    --species $species \
-    --offline \
-    --symbol \
-    --biotype --vcf --sift s \
-    --no_stats \
-    --assembly $assembly \
-    --flag_pick_allele \
-    --canonical \
-    --hgvs \
-    --shift_hgvs 1 \
-    --fasta $ref \
-    $custom \
-    --compress_output bgzip \
-    --mane --numbers --polyphen p \
-    --domain --transcript_version \
-    --show_ref_allele --fork 4
+    --config ${vep_config}
+    --output_file TBC
     """
     stub: 
     """
