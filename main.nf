@@ -5,7 +5,8 @@ include { GENERATE_GENOMICS_DB;GATK_GVCF_PER_CHROM;
           SELECT_VARIANTS as SELECT_SNP_VARIANTS;SELECT_VARIANTS as SELECT_INDEL_VARIANTS;
           MARK_VARIANTS as MARK_SNP_VARIANTS; MARK_VARIANTS as  MARK_INDEL_VARIANTS;
           FILTER_VARIANTS as FILTER_SNP_VARIANTS;FILTER_VARIANTS as FILTER_INDEL_VARIANTS;
-          ANNOTATE_VARIANTS as ANNOTATE_SNP_VARIANTS;ANNOTATE_VARIANTS as ANNOTATE_INDEL_VARIANTS} from './subworkflows/germline_post.nf'
+          ANNOTATE_VARIANTS as ANNOTATE_SNP_VARIANTS;ANNOTATE_VARIANTS as ANNOTATE_INDEL_VARIANTS;
+          CONVERT_TO_TSV as CONVERT_SNP_TO_TSV;CONVERT_TO_TSV as CONVERT_INDEL_TO_TSV;} from './subworkflows/germline_post.nf'
 
 workflow {
     sample_map = file(params.sample_map, checkIfExists: true)
@@ -86,6 +87,6 @@ workflow {
                       cosmic_file,
                       reference_genome)
 
-    // CONVERT_TO_TSV(ANNOTATE_SNP_VARIANTS.out.vep_annotation,
-                //    ANNOTATE_INDEL_VARIANTS.out.vep_annotation)
+    CONVERT_SNP_TO_TSV(ANNOTATE_SNP_VARIANTS.out.vep_annotation)
+    // CONVERT_INDEL_TO_TSV(ANNOTATE_INDEL_VARIANTS.out.vep_annotation)
 }
