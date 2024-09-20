@@ -228,13 +228,14 @@ process ANNOTATE_VARIANTS {
     publishDir "${params.outdir}/Final_joint_call"
     container "ensemblorg/ensembl-vep:release_103.1"
     input:
-    tuple val(meta), path(vcf_file)
+    tuple val(meta), path(vcf_file), path(vcf_index)
     path(vep_cache)
     path(vep_config)
     path(gnomadfile)
     path(dbsnpfile)
     path(clinvarfile)
     path(cosmicfile)
+    path(ref_genome)
     
     output: 
     tuple val(meta), path("*vep.vcf.gz"), emit: vep_annotation
@@ -245,7 +246,6 @@ process ANNOTATE_VARIANTS {
     """
     vep -i ${vcf_file} \
     --dir ${vep_cache} \
-    ${custom} \
     --config ${vep_config} \
     --output_file ${outfname}
     """
