@@ -69,4 +69,4 @@ secure-lustre-test:
     #
     # MAIN
     #
-    - nf-test test
+    - nf-test test --verbose

@@ -1,7 +1,7 @@
 
 
 process CONVERT_TO_TSV {
-    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline/feature/dockerise:d1a99a96"
+    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.0"
     publishDir "${params.outdir}/Final_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(vep_vcf), path(vep_index)
@@ -18,7 +18,7 @@ process CONVERT_TO_TSV {
 
 
 process COMBINED_SUMMARY{
-    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline/feature/dockerise:d1a99a96"
+    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.0"
     publishDir "results/Final_joint_call/sumtabs", mode: 'copy'
 
     input: 
@@ -50,7 +50,7 @@ process COMBINED_SUMMARY{
 
 process CONVERT_TO_MAF {
     publishDir "results/Final_joint_call/sumtabs", mode: 'copy'
-    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline/feature/dockerise:d1a99a96"
+    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.0"
 
 
     input:
