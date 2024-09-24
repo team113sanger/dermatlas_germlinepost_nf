@@ -1,5 +1,6 @@
 process GENERATE_GENOMICS_DB {
     container "broadinstitute/gatk:4.2.6.1"
+    label "gatk_steps"
     publishDir "${params.outdir}", mode: "copy"
     
     input: 

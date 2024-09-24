@@ -1,6 +1,7 @@
 
 process GATK_GVCF_PER_CHROM {
     tag {CHR[0]}
+    label "gatk_steps"
     container "docker://broadinstitute/gatk:4.2.6.1"
     publishDir "${params.outdir}/Raw_joint_call", mode: "copy"
     input: 
@@ -30,6 +31,7 @@ process GATK_GVCF_PER_CHROM {
 
 process MERGE_COHORT_VCF {
     container "docker://broadinstitute/gatk:4.2.6.1"
+    label "gatk_steps"
     publishDir "${params.outdir}/Raw_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(vcf_file_list)
@@ -51,6 +53,7 @@ process MERGE_COHORT_VCF {
 
 process INDEX_COHORT_VCF {
     publishDir "${params.outdir}/Raw_joint_call", mode: "copy"
+    label "gatk_steps"
     container "docker://broadinstitute/gatk:4.2.6.1"
 
     input: 
@@ -75,6 +78,7 @@ process INDEX_COHORT_VCF {
 
 process SELECT_VARIANTS {
     container "docker://broadinstitute/gatk:4.2.6.1"
+    label "gatk_steps"
     publishDir "${params.outdir}/Final_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(raw_genotpye_vcf), path(raw_genotpye_index) 
@@ -102,6 +106,7 @@ process SELECT_VARIANTS {
 
 process MARK_VARIANTS {
     container "docker://broadinstitute/gatk:4.2.6.1"
+    label "gatk_steps"
     publishDir "${params.outdir}/Final_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(raw_genotpye_vcf), path(raw_genotpye_index)
@@ -149,6 +154,7 @@ process MARK_VARIANTS {
 
 process FILTER_VARIANTS {
     container "quay.io/biocontainers/bcftools:1.20--h8b25389_0"
+    label "gatk_steps"
     publishDir "${params.outdir}/Final_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(marked_genotpye_vcf), path(marked_genotpye_index)
