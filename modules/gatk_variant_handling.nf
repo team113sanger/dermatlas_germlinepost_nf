@@ -1,7 +1,7 @@
 
 process GATK_GVCF_PER_CHROM {
     tag {CHR[0]}
-    container "broadinstitute/gatk:4.2.6.1"
+    container "docker://broadinstitute/gatk:4.2.6.1"
     publishDir "${params.outdir}/Raw_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(GENDB)
@@ -29,7 +29,7 @@ process GATK_GVCF_PER_CHROM {
 }
 
 process MERGE_COHORT_VCF {
-    container "broadinstitute/gatk:4.2.6.1"
+    container "docker://broadinstitute/gatk:4.2.6.1"
     publishDir "${params.outdir}/Raw_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(vcf_file_list)
@@ -51,7 +51,7 @@ process MERGE_COHORT_VCF {
 
 process INDEX_COHORT_VCF {
     publishDir "${params.outdir}/Raw_joint_call", mode: "copy"
-    container "broadinstitute/gatk:4.2.6.1"
+    container "docker://broadinstitute/gatk:4.2.6.1"
 
     input: 
     tuple val(meta), path(cohort_vcf)
@@ -74,7 +74,7 @@ process INDEX_COHORT_VCF {
 }
 
 process SELECT_VARIANTS {
-    container "broadinstitute/gatk:4.2.6.1"
+    container "docker://broadinstitute/gatk:4.2.6.1"
     publishDir "${params.outdir}/Final_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(raw_genotpye_vcf), path(raw_genotpye_index) 
@@ -101,7 +101,7 @@ process SELECT_VARIANTS {
 
 
 process MARK_VARIANTS {
-    container "broadinstitute/gatk:4.2.6.1"
+    container "docker://broadinstitute/gatk:4.2.6.1"
     publishDir "${params.outdir}/Final_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(raw_genotpye_vcf), path(raw_genotpye_index)
