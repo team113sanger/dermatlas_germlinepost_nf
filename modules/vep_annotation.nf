@@ -2,7 +2,7 @@
 
 process ANNOTATE_VARIANTS {
     publishDir "${params.outdir}/Final_joint_call", mode: "copy"
-    container "ensemblorg/ensembl-vep:release_103.1"
+
     input:
     tuple val(meta), path(vcf_file), path(vcf_index)
     path(vep_cache)

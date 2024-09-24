@@ -153,7 +153,6 @@ process MARK_VARIANTS {
 
 
 process FILTER_VARIANTS {
-    container "quay.io/biocontainers/bcftools:1.20--h8b25389_0"
     publishDir "${params.outdir}/Final_joint_call", mode: "copy"
     
     input: 
