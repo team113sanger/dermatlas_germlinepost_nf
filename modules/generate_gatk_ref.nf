@@ -1,6 +1,7 @@
 
 process CREATE_DICT {
     container "broadinstitute/gatk:4.2.6.1"
+    label "gatk_steps"
     input: 
         path(ref_genome)
     output:
