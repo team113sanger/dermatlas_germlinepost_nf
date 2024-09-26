@@ -60,7 +60,7 @@ process CONVERT_TO_MAF {
 
     output: 
     path ("*.gnmadF.maf.gz"), emit: maf
-    path("oncoplots/*"), emit: oncoplots
+    path("maftools_plots/*"), emit: oncoplots
     script: 
     """
     /opt/repo/scripts/convert_germ_sumtsv_to_MAF_plot.R \
