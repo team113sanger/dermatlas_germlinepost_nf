@@ -59,7 +59,7 @@ process CONVERT_TO_MAF {
     path(CANCER_GENE_CENSUS)
 
     output: 
-    path ("*cohort_snps.indel.marked.target.pass.vep.gnmadF.maf.gz"), emit: maf
+    path ("*.gnmadF.maf.gz"), emit: maf
     path("oncplots/*"), emit: oncoplots
     script: 
     """
