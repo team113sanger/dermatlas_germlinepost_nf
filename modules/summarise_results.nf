@@ -50,6 +50,7 @@ process COMBINED_SUMMARY{
 
 process CONVERT_TO_MAF {
     publishDir "results/Final_joint_call/sumtabs", mode: 'copy'
+    errorStrategy 'ignore'
     container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.0"
 
 
