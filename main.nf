@@ -22,7 +22,7 @@ workflow {
     cancer_gene_census_resource = file(params.cancer_gene_census_resource, checkIfExists: true)
     flag_genes =  file(params.flag_genes, checkIfExists: true)
     
-    chroms = Channel.fromPath("$baseDir/assets/grch38_chromosome.txt")
+    chroms = Channel.fromPath(params.chrom_file)
     | splitCsv(sep:"\t")
     | collect(flat: true)
     chrom_idx = chroms.withIndex()
