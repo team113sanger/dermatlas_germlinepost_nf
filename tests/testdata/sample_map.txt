@@ -2,3 +2,7 @@ PD54616b	/somewhere/PD54616b.sorted.dups.coord.bam.gatk.g.vcf.gz
 PD54617b	/somewhere/PD54617b.sorted.dups.coord.bam.gatk.g.vcf.gz
 PD54618b	/somewhere/PD54618b.sorted.dups.coord.bam.gatk.g.vcf.gz
 PD54619b	/somewhere/PD54619b.sorted.dups.coord.bam.gatk.g.vcf.gz
+PD54620b	/somewhere/PD54620b.sorted.dups.coord.bam.gatk.g.vcf.gz
+PD54622b	/somewhere/PD54622b.sorted.dups.coord.bam.gatk.g.vcf.gz
+PD54623b	/somewhere/PD54623b.sorted.dups.coord.bam.gatk.g.vcf.gz
+PD54629b	/somewhere/PD54629b.sorted.dups.coord.bam.gatk.g.vcf.gz
