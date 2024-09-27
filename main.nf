@@ -9,7 +9,7 @@ include { COMBINED_SUMMARY;CONVERT_TO_MAF } from "./modules/summarise_results.nf
 
 workflow {
 
-    sample_map = file(params.sample_map, checkIfExists: true)
+
     baitset = file(params.baitset, checkIfExists: true)
     reference_genome = file(params.reference_genome, checkIfExists: true)
     vep_cache = file(params.vep_cache, checkIfExists: true)
@@ -21,6 +21,16 @@ workflow {
     nih_germline_resource =   file(params.nih_germline_resource, checkIfExists: true)
     cancer_gene_census_resource = file(params.cancer_gene_census_resource, checkIfExists: true)
     flag_genes =  file(params.flag_genes, checkIfExists: true)
+    sample_map = file(params.sample_map, checkIfExists: true)
+    
+    
+    Channel.fromPath(sample_map)
+    .splitCsv(sep:"\t", header: ["sample", "file"])
+    .map{ meta  ->
+    def basename = new File(meta.file).getName()
+    [ meta.sample, basename ]}
+    .collectFile{ meta -> ["sample_base.txt", "${meta[0]}\t${meta[1]}\n"]}
+    | set {base_map}
     
     chroms = Channel.fromPath(params.chrom_file)
     | splitCsv(sep:"\t")
@@ -35,13 +45,13 @@ workflow {
      .map { file_list -> tuple([study_id: params.study_id], file_list)}
      .set{ vcf_ch }
     
-    GENERATE_GENOMICS_DB(sample_map, chroms, vcf_ch)
+    GENERATE_GENOMICS_DB(base_map, chroms, vcf_ch)
     CREATE_DICT(reference_genome)
     GATK_GVCF_PER_CHROM(GENERATE_GENOMICS_DB.out.genomicsdb, 
                         CREATE_DICT.out.ref, 
                         chrom_idx)
 
-    
+     
     gvcf_chrom_files = GATK_GVCF_PER_CHROM.out.chrom_vcf
     | toSortedList { item -> item[0][1]}
     | transpose()
