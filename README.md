@@ -32,7 +32,7 @@ Only post-processing currently supported. Inputs can be split into those which a
 
 ### Cohort-independent variables
 Reference files that are reused across pipeline executions have been placed within the pipeline's default `nextflow.config` file to simplify configuration. These can be ommited from setup. Behind the scences though, the following reference files are required for a run: 
-
+- `chrom_file`: path to a text file containing ordered chrosome names See `assets/grch38_chromosome.txt`
 - `reference_genome`: path to a reference genome file
 - `baitset`: path to a `.bed` file describing the analysed genomic regions
 - `vep_cache`: path to the release directory that contains a vep cache 
