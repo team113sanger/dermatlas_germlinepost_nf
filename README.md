@@ -6,27 +6,50 @@
 
 ## Introduction
 
-dermatlas_germlinepost_nf is a bioinformatics pipeline written in [Nextflow](http://www.nextflow.io) for performing post-processing of germline variants generated with GATK  oncohorts of tumors within the Dermatlas project. 
+dermatlas_germlinepost_nf is a bioinformatics pipeline written in [Nextflow](http://www.nextflow.io) for generating and/or performing post-processing of germline variants generated with GATK on cohorts of tumors within the Dermatlas project. 
 
 ## Pipeline summary
 
 In brief, the pipeline takes a set samples that have been pre-processed by the Dermatlas ingestion pipeline and then:
-- 
+- Generates a GenomicsDB datastore for joint calling germline variants
+- Creates index files required by GATK for processing your genome of interest
+- Generates per-chromosome variant call files for the cohort
+- Merges those per-chrom files into a single cohort VCF and indexes it
+- Selects, marks and filters SNPs and Indels as per GATK 
+- Annotates the final variant sets with VEP
+- Reformats and then summarises the data to produce germline oncoplots and tables.
 
 ## Inputs 
 
+Inputs will depend on whether you are runnning in post-processing mode or end-to-end. 
+Only post-processing currently supported. Inputs can be split into those which are cohort dependent and independent.
+
 ### Cohort-dependent variables
+`study_id`: Prefix number for the cohort
+`geno_vcf`: a path to a set of .vcf files in a project directory. Note: the pipeline assumes that corresponding index files have been pre-generated and are co-located with vcf and you should use a ** glob match to recursively collect all bamfiles in the directory
+`sample_map`: path to a tab delimited file containing Sample IDs and the vcf files that they correspond to 
+`outdir`: path to the where you would like the pipeline to output results
 
 ### Cohort-independent variables
-Reference files that are reused across pipeline executions have been placed within the pipeline's default `nextflow.config` file to simplify configuration and can be ommited from setup. Behind the scences though, the following reference files are required for a run: 
-- `reference_genome`: path to a reference genome file (ASCAT).
-- `bait_set`: path to a `.bed` file describing the analysed genomic regions  (ASCAT).
+Reference files that are reused across pipeline executions have been placed within the pipeline's default `nextflow.config` file to simplify configuration. These can be ommited from setup. Behind the scences though, the following reference files are required for a run: 
 
-Default reference file values supplied within the `nextflow.config` file can be overided by adding them to the params `.json` file. An example complete params file `example_params.json` is supplied within this repo for demonstation.
+- `reference_genome`: path to a reference genome file
+- `baitset`: path to a `.bed` file describing the analysed genomic regions
+- `vep_cache`: path to the release directory that contains a vep cache 
+- `vep_config`: path to a file containing vep options. See `assets/vep_config.ini`
+- `gnomad_file`: path to a gnomad annotation file to use in VEP 
+- `dbsnp_file`: path to a DBSNP annotation file to use in VEP 
+- `clinvar_file`: path to a DBSNP annotation file to use in VEP 
+- `cosmic_file`: path to a COSMIC annotation file to use in VEP  
+- `nih_germline_resource`: path to file containing the information of the set of genes used by the NHS for [germline cancer predisposition diagnosis - prepared by mdc1@sanger.ac.uk](https://gitlab.internal.sanger.ac.uk/DERMATLAS/resources/national_genomic_test_germline_cancer_genes/-/tree/0.1.0?ref_type=tags)
+- `cancer_gene_census_resoruce`: Cancer gene Census list of genes form COSMIC v97 
+- `flag_genes`: path to a list of [FLAG](https://bmcmedgenomics.biomedcentral.com/articles/10.1186/s12920-014-0064-y#Sec11) genes, frequently mutated in normal exomes.
+
+Default reference file values supplied within the `nextflow.config` file can be overided by adding them to the params `.json` file. An example complete params file `tests/test_data/test_params.json` is supplied within this repo for demonstation.
 
 ## Usage 
 
-The recommended way to launch this pipeline is using a wrapper script (e.g. `bsub < my_wrapper.sh`) that submits nextflow as a job and records the version (**e.g.** `-r 0.4.0`)  and the `.json` parameter file supplied for a run.
+The recommended way to launch this pipeline is using a wrapper script (e.g. `bsub < my_wrapper.sh`) that submits nextflow as a job and records the version (**e.g.** `-r 0.1.0`)  and the `.json` parameter file supplied for a run.
 
 An example wrapper script:
 ```
@@ -38,7 +61,7 @@ An example wrapper script:
 #BSUB -oo nf_out.o
 #BSUB -eo nf_out.e
 
-PARAMS_FILE="/lustre/scratch125/casm/team113da/users/jb63/nf_cna_testing/params.json"
+PARAMS_FILE="/lustre/scratch125/casm/team113da/users/jb63/nf_germline_testing/params.json"
 
 # Load module dependencies
 module load nextflow-23.10.0
