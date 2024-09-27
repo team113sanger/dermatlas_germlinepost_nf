@@ -50,6 +50,7 @@ process COMBINED_SUMMARY{
 
 process CONVERT_TO_MAF {
     publishDir "results/Final_joint_call/sumtabs", mode: 'copy'
+    errorStrategy 'ignore'
     container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.0"
 
 
@@ -59,8 +60,8 @@ process CONVERT_TO_MAF {
     path(CANCER_GENE_CENSUS)
 
     output: 
-    path ("*cohort_snps.indel.marked.target.pass.vep.gnmadF.maf.gz"), emit: maf
-    path("oncplots/*"), emit: oncoplots
+    path ("*.gnmadF.maf.gz"), emit: maf
+    path("maftools_plots/*"), emit: oncoplots
     script: 
     """
     /opt/repo/scripts/convert_germ_sumtsv_to_MAF_plot.R \
