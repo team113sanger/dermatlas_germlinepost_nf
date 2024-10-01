@@ -6,7 +6,7 @@ process GENERATE_GENOMICS_DB {
     input: 
     path(SAMPLE_MAP)
     val(chroms)
-    tuple val(meta), path(genotype_vcfs), path(genotype_vcfs_index)
+    tuple val(meta), path(genotype_vcfs)
 
     output: 
     tuple val(meta), path("*data"), emit: genomicsdb

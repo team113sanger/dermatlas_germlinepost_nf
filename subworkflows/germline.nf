@@ -1,9 +1,7 @@
-// include { GENERATE_GENOMICS_DB } from "../modules/generate_genomicsdb.nf"
 include { NF_DEEPVARIANT } from "../subworkflows/hgi_nfdeepvariant.nf"
 workflow GERMLINE {
     
-    channel_inputs_bams = Channel
-    .fromPath(params.tsv_file)
+    channel_inputs_bams = Channel.fromPath(params.tsv_file)
     .splitCsv(header: true, sep: '\t')
     .map{row->tuple(row.sample, row.object, row.object_index)}
     .take(params.samples_to_process)
