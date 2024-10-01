@@ -20,6 +20,7 @@ workflow {
     custom_files = Channel.of(params.custom_files.split(';'))
     .map(it -> file(it, checkIfExists: true))
     .collect()
+    custom_args = Channel.of(params.custom_args.split(';')).collect()
     nih_germline_resource = file(params.nih_germline_resource, checkIfExists: true)
     cancer_gene_census_resource = file(params.cancer_gene_census_resource, checkIfExists: true)
     flag_genes =  file(params.flag_genes, checkIfExists: true)
@@ -65,6 +66,7 @@ workflow {
                  vep_cache,
                  vep_config,
                  custom_files,
+                 custom_args,
                  reference_genome)
     
     PROCESS_INDELS(variant_multi.indel_ch,
@@ -72,6 +74,7 @@ workflow {
                    vep_cache,
                    vep_config,
                    custom_files,
+                   custom_args,
                    reference_genome)
     
     if (params.summarise_results){

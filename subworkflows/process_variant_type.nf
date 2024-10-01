@@ -11,6 +11,7 @@ workflow PROCESS_VARIANT_SET {
     vep_cache
     vep_config
     custom_files
+    custom_args
     reference_genome
     
     main:
@@ -21,6 +22,7 @@ workflow PROCESS_VARIANT_SET {
                       vep_cache, 
                       vep_config,
                       custom_files,
+                      custom_args,
                       reference_genome)
 
     CONVERT_TO_TSV(ANNOTATE_VARIANTS.out.vep_annotation)
