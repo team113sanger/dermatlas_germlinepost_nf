@@ -2,13 +2,14 @@
 nextflow.enable.dsl = 2
 
 include { GENERATE_GENOMICS_DB } from "./modules/generate_genomicsdb.nf"
-include { CREATE_DICT} from "./modules/generate_gatk_ref.nf"
+include { CREATE_DICT } from "./modules/generate_gatk_ref.nf"
 include { GATK_GVCF_PER_CHROM;MERGE_COHORT_VCF;INDEX_COHORT_VCF} from "./modules/gatk_variant_handling.nf"
 include { PROCESS_VARIANT_SET as PROCESS_SNPS; PROCESS_VARIANT_SET as PROCESS_INDELS } from "./subworkflows/process_variant_type.nf"
+include { NF_DEEPVARIANT } from "./subworkflows/hgi_nfdeepvariant.nf"
+
 include { COMBINED_SUMMARY;CONVERT_TO_MAF } from "./modules/summarise_results.nf"
 
 workflow {
-
 
     baitset = file(params.baitset, checkIfExists: true)
     reference_genome = file(params.reference_genome, checkIfExists: true)
@@ -19,39 +20,43 @@ workflow {
     clinvar_file = file(params.clinvar_file, checkIfExists: true)
     cosmic_file = file(params.cosmic_file, checkIfExists: true)
     nih_germline_resource =   file(params.nih_germline_resource, checkIfExists: true)
-    cancer_gene_census_resource = file(params.cancer_gene_census_resource, checkIfExists: true)
+    cancer_gene_census_resoruce = file(params.cancer_gene_census_resoruce, checkIfExists: true)
     flag_genes =  file(params.flag_genes, checkIfExists: true)
-    sample_map = file(params.sample_map, checkIfExists: true)
     
-    
-    Channel.fromPath(sample_map)
-    .splitCsv(sep:"\t", header: ["sample", "file"])
-    .map{ meta  ->
-    def basename = new File(meta.file).getName()
-    [ meta.sample, basename ]}
-    .collectFile{ meta -> ["sample_base.txt", "${meta[0]}\t${meta[1]}\n"]}
-    | set {base_map}
-    
-    chroms = Channel.fromPath(params.chrom_file)
+    chroms = Channel.fromPath("$baseDir/assets/grch38_chromosome.txt")
     | splitCsv(sep:"\t")
     | collect(flat: true)
     chrom_idx = chroms.withIndex()
     
-    Channel.fromPath(params.geno_vcf)
-    .map { file -> 
-            index = file + ".tbi"
-            tuple(file, index)}
-     .collect()
-     .map { file_list -> tuple([study_id: params.study_id], file_list)}
-     .set{ vcf_ch }
+    channel_inputs_bams = Channel.fromPath(params.tsv_file)
+    .splitCsv(header: true, sep: '\t')
+    .map{row-> tuple(row.sample, row.object, row.object_index)}
+    .take(params.samples_to_process)
+
     
-    GENERATE_GENOMICS_DB(base_map, chroms, vcf_ch)
     CREATE_DICT(reference_genome)
+    NF_DEEPVARIANT(channel_inputs_bams,reference_genome, baitset)
+    NF_DEEPVARIANT.out.gatk_haplotypecaller_out.collectFile(
+        name: "tmp_sample_map.txt")
+        {
+        meta, vcf, index ->
+    ["tmp_sample_map.txt", "${meta}\t${vcf.baseName}\n"]}
+    .set{ sample_map }    
+    
+    NF_DEEPVARIANT.out.gatk_haplotypecaller_out.collectFile(
+        name: "sample_map.txt",
+        storeDir: "${params.outdir}")
+        {
+        meta, vcf, index ->
+    ["sample_map.txt", "${meta}\t${params.outdir}/${vcf.baseName}\n"]}
+  
+
+    GENERATE_GENOMICS_DB(sample_map, chroms, NF_DEEPVARIANT.out)
     GATK_GVCF_PER_CHROM(GENERATE_GENOMICS_DB.out.genomicsdb, 
                         CREATE_DICT.out.ref, 
                         chrom_idx)
 
-     
+    
     gvcf_chrom_files = GATK_GVCF_PER_CHROM.out.chrom_vcf
     | toSortedList { item -> item[0][1]}
     | transpose()
@@ -91,9 +96,9 @@ workflow {
     COMBINED_SUMMARY(PROCESS_SNPS.out.publish_vars,
                      PROCESS_INDELS.out.publish_vars,
                     nih_germline_resource,
-                    cancer_gene_census_resource,
+                    cancer_gene_census_resoruce,
                     flag_genes)
     CONVERT_TO_MAF(COMBINED_SUMMARY.out.outfile,
                         nih_germline_resource,
-                        cancer_gene_census_resource)
+                        cancer_gene_census_resoruce)
 }
