@@ -7,10 +7,7 @@ process ANNOTATE_VARIANTS {
     tuple val(meta), path(vcf_file), path(vcf_index)
     path(vep_cache)
     path(vep_config)
-    path(gnomadfile)
-    path(dbsnpfile)
-    path(clinvarfile)
-    path(cosmicfile)
+    path(custom_files)
     path(ref_genome)
     
     output: 

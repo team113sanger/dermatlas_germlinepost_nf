@@ -10,10 +10,7 @@ workflow PROCESS_VARIANT_SET {
     baitset
     vep_cache
     vep_config
-    gnomad_file
-    dbsnp_file
-    clinvar_file
-    cosmic_file
+    custom_files
     reference_genome
     
     main:
@@ -23,10 +20,7 @@ workflow PROCESS_VARIANT_SET {
     ANNOTATE_VARIANTS(FILTER_VARIANTS.out.filtered_variants, 
                       vep_cache, 
                       vep_config,
-                      gnomad_file,
-                      dbsnp_file,
-                      clinvar_file,
-                      cosmic_file,
+                      custom_files,
                       reference_genome)
 
     CONVERT_TO_TSV(ANNOTATE_VARIANTS.out.vep_annotation)

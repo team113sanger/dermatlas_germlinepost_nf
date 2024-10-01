@@ -3,7 +3,7 @@ nextflow.enable.dsl = 2
 
 include { GENERATE_GENOMICS_DB } from "./modules/generate_genomicsdb.nf"
 include { CREATE_DICT } from "./modules/generate_gatk_ref.nf"
-include { GATK_GVCF_PER_CHROM;MERGE_COHORT_VCF;INDEX_COHORT_VCF} from "./modules/gatk_variant_handling.nf"
+include { GATK_GVCF_PER_CHROM; MERGE_COHORT_VCF;INDEX_COHORT_VCF} from "./modules/gatk_variant_handling.nf"
 include { PROCESS_VARIANT_SET as PROCESS_SNPS; PROCESS_VARIANT_SET as PROCESS_INDELS } from "./subworkflows/process_variant_type.nf"
 include { NF_DEEPVARIANT } from "./subworkflows/hgi_nfdeepvariant.nf"
 include { GERMLINE } from "./subworkflows/germline.nf"
@@ -17,10 +17,9 @@ workflow {
     reference_genome = file(params.reference_genome, checkIfExists: true)
     vep_cache = file(params.vep_cache, checkIfExists: true)
     vep_config = file(params.vep_config, checkIfExists: true)
-    gnomad_file = file(params.gnomad_file, checkIfExists: true)
-    dbsnp_file = file(params.dbsnp_file, checkIfExists: true)
-    clinvar_file = file(params.clinvar_file, checkIfExists: true)
-    cosmic_file = file(params.cosmic_file, checkIfExists: true)
+    custom_files = Channel.of(params.custom_files.split(';'))
+    .map(it -> file(it, checkIfExists: true))
+    .collect()
     nih_germline_resource = file(params.nih_germline_resource, checkIfExists: true)
     cancer_gene_census_resource = file(params.cancer_gene_census_resource, checkIfExists: true)
     flag_genes =  file(params.flag_genes, checkIfExists: true)
@@ -65,23 +64,17 @@ workflow {
                  baitset,
                  vep_cache,
                  vep_config,
-                 gnomad_file,
-                 dbsnp_file,
-                 clinvar_file,
-                 cosmic_file,
+                 custom_files,
                  reference_genome)
     
     PROCESS_INDELS(variant_multi.indel_ch,
                    baitset,
                    vep_cache,
                    vep_config,
-                   gnomad_file,
-                   dbsnp_file,
-                   clinvar_file,
-                   cosmic_file,
+                   custom_files,
                    reference_genome)
     
-    if (params.summarise_resuts){
+    if (params.summarise_results){
     COMBINED_SUMMARY(PROCESS_SNPS.out.publish_vars,
                      PROCESS_INDELS.out.publish_vars,
                     nih_germline_resource,
