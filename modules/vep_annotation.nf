@@ -20,7 +20,7 @@ process ANNOTATE_VARIANTS {
     vep -i ${vcf_file} \
     --dir ${vep_cache} \
     --config ${vep_config} \
-    --fasta ${ref_genome} \ 
+    --fasta ${ref_genome} \
     $custom_flag \
     --output_file ${outfname}
     tabix -p vcf ${outfname}
