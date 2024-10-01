@@ -20,5 +20,5 @@ workflow NF_DEEPVARIANT {
 
     
     emit:
-    gatk_haplotypecaller_out = gatk_haplotypecaller.out
+    haplos = gatk_haplotypecaller.out
 }

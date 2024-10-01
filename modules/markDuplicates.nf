@@ -1,5 +1,3 @@
-//params.ref_dir = "/lustre/scratch118/humgen/resources/ref/Homo_sapiens/HS38DH/"
-
 process markDuplicates {
     tag "$sample"
     container "broadinstitute/gatk:4.2.6.1"

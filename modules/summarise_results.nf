@@ -83,8 +83,8 @@ process CONVERT_TO_MAF {
     stub:
     """
     echo stub > demo.cohort_snps.indel.marked.target.pass.vep.gnmadF.maf.gz
-    mkdir oncplots
-    echo stub > oncplots/example.pdf
+    mkdir maftools_plots
+    echo stub > maftools_plots/example.pdf
     """
 
 }
