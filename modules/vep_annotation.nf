@@ -15,13 +15,13 @@ process ANNOTATE_VARIANTS {
     tuple val(meta), path("*vep.vcf.gz"),path("*vep.vcf.gz.tbi"), emit: vep_annotation
     script: 
     def outfname = "${vcf_file}".replace(".vcf.gz", "") + ".vep.vcf.gz"
-    def custom_flag = "${custom_args}".join(' ')
+    def custom_flag =  "--custom " + "${custom_args}".join(' --custom ')
     """
     vep -i ${vcf_file} \
     --dir ${vep_cache} \
     --config ${vep_config} \
     --fasta ${ref_genome} \
-    $custom_flag \
+    --custom $custom_flag \
     --output_file ${outfname}
     tabix -p vcf ${outfname}
     """
