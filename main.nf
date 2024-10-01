@@ -27,36 +27,23 @@ workflow {
     | splitCsv(sep:"\t")
     | collect(flat: true)
     chrom_idx = chroms.withIndex()
-    
-    channel_inputs_bams = Channel.fromPath(params.tsv_file)
-    .splitCsv(header: true, sep: '\t')
-    .map{row-> tuple(row.sample, row.object, row.object_index)}
-    .take(params.samples_to_process)
 
-    
     CREATE_DICT(reference_genome)
-    NF_DEEPVARIANT(channel_inputs_bams,reference_genome, baitset)
-    NF_DEEPVARIANT.out.gatk_haplotypecaller_out.collectFile(
-        name: "tmp_sample_map.txt")
-        {
-        meta, vcf, index ->
-    ["tmp_sample_map.txt", "${meta}\t${vcf.baseName}\n"]}
-    .set{ sample_map }    
     
-    NF_DEEPVARIANT.out.gatk_haplotypecaller_out.collectFile(
-        name: "sample_map.txt",
-        storeDir: "${params.outdir}")
-        {
-        meta, vcf, index ->
-    ["sample_map.txt", "${meta}\t${params.outdir}/${vcf.baseName}\n"]}
-  
-
-    GENERATE_GENOMICS_DB(sample_map, chroms, NF_DEEPVARIANT.out)
-    GATK_GVCF_PER_CHROM(GENERATE_GENOMICS_DB.out.genomicsdb, 
-                        CREATE_DICT.out.ref, 
-                        chrom_idx)
+    if (params.post_process_only){
+        POSTPROCESS_ONLY()
+        sample_map = POSTPROCESS_ONLY.out.sample_map
+        db_ch = GENERATE_GENOMICS_DB(sample_map, chroms, POSTPROCESS_ONLY.out.vcf_ch)
+    } else {
+    GERMLINE(channel_inputs_bams)
+    sample_map = GERMLINE.out.sample_map
+    db_ch = GENERATE_GENOMICS_DB(sample_map, chroms, GERMLINE.out.vcf_ch)
+    }
 
     
+    GATK_GVCF_PER_CHROM(db_ch, 
+                    CREATE_DICT.out.ref, 
+                    chrom_idx)
     gvcf_chrom_files = GATK_GVCF_PER_CHROM.out.chrom_vcf
     | toSortedList { item -> item[0][1]}
     | transpose()
