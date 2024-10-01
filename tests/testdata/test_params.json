@@ -1,6 +1,7 @@
 {
     "study_id": 6676,
     "post_process_only": true,
+    "summarise_results": true,
     "tsv_file" : "${baseDir}/tests/testdata/manifest.tsv",
     "samples_to_process" : -1,
     "bed_dir" : "/lustre/scratch124/casm/team113/ref/DERMATLAS/baits",

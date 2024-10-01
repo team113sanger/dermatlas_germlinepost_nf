@@ -21,7 +21,7 @@ workflow {
     dbsnp_file = file(params.dbsnp_file, checkIfExists: true)
     clinvar_file = file(params.clinvar_file, checkIfExists: true)
     cosmic_file = file(params.cosmic_file, checkIfExists: true)
-    nih_germline_resource =   file(params.nih_germline_resource, checkIfExists: true)
+    nih_germline_resource = file(params.nih_germline_resource, checkIfExists: true)
     cancer_gene_census_resource = file(params.cancer_gene_census_resource, checkIfExists: true)
     flag_genes =  file(params.flag_genes, checkIfExists: true)
     
@@ -81,6 +81,7 @@ workflow {
                    cosmic_file,
                    reference_genome)
     
+    if (params.summarise_resuts){
     COMBINED_SUMMARY(PROCESS_SNPS.out.publish_vars,
                      PROCESS_INDELS.out.publish_vars,
                     nih_germline_resource,
@@ -89,4 +90,5 @@ workflow {
     CONVERT_TO_MAF(COMBINED_SUMMARY.out.outfile,
                         nih_germline_resource,
                         cancer_gene_census_resource)
+    }
 }
