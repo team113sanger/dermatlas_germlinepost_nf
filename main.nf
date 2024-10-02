@@ -29,7 +29,7 @@ workflow {
     chroms = Channel.fromPath(params.chrom_list)
     | splitCsv(sep:"\t")
     | collect(flat: true)
-    chrom_idx = chroms.withIndex()
+    chrom_idx = chroms.flatten().toList().map { it.withIndex() }
 
     CREATE_DICT(reference_genome)
     
@@ -51,6 +51,7 @@ workflow {
     | transpose()
     | last()
     | map {it -> tuple([study_id: params.study_id], it)}
+    gvcf_chrom_files.view()
     
     MERGE_COHORT_VCF(gvcf_chrom_files)
     INDEX_COHORT_VCF(MERGE_COHORT_VCF.out.cohort_vcf)

@@ -28,6 +28,7 @@ workflow POSTPROCESS_ONLY {
      .map { file_list -> tuple([study_id: params.study_id], file_list)}
      .set{ vcf_ch }
 
+
     
     emit: 
     vcf_ch = vcf_ch
