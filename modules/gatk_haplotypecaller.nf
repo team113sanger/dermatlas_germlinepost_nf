@@ -1,5 +1,5 @@
 process gatk_haplotypecaller {
-    tag "$sample"
+    tag "$meta"
     container "broadinstitute/gatk:4.2.6.1"
     label "gatk_steps"
     publishDir path: "${params.outdir}/gatk_haplotypecaller/",
