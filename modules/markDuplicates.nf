@@ -11,7 +11,8 @@ process markDuplicates {
      
     input:
     tuple val(sample), path(cram_file_sorted)
-    path(ref_genome)
+    tuple path(ref_genome), path(ref_genome_dict), path(reference_idx)
+
 
     output:
     tuple val(sample), path("${cram_file_sorted}.dups"), emit: markdup_sample_cram

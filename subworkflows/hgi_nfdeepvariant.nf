@@ -16,7 +16,7 @@ workflow NF_DEEPVARIANT {
         markDuplicates(sort_cram.out.sorted_sample_cram, ref_genome)
         coord_sort_cram(markDuplicates.out.markdup_sample_cram)
         bam_to_cram(coord_sort_cram.out.markdup_sample_cram_crai, ref_genome)
-        gatk_haplotypecaller(coord_sort_cram.out.markdup_sample_cram_crai,ref_genome, baitset)
+        gatk_haplotypecaller(coord_sort_cram.out.markdup_sample_cram_crai, ref_genome, baitset)
 
     
     emit:

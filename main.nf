@@ -38,7 +38,7 @@ workflow {
         sample_map = POSTPROCESS_ONLY.out.sample_map
         db_ch = GENERATE_GENOMICS_DB(sample_map, chroms, POSTPROCESS_ONLY.out.vcf_ch)
     } else {
-        GERMLINE(reference_genome,baitset)
+        GERMLINE(CREATE_DICT.out.ref,baitset)
         sample_map = GERMLINE.out.sample_map
         db_ch = GENERATE_GENOMICS_DB(sample_map, chroms, GERMLINE.out.vcf_ch)
     }

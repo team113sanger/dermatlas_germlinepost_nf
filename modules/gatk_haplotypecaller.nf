@@ -12,7 +12,7 @@ process gatk_haplotypecaller {
      
     input:
     tuple val(meta), path(cram_file_sorted_dups_coord), path(cram_file_sorted_dups_coord_index)
-    path(reference_genome)
+    tuple path(reference_genome), path(ref_genome_dict), path(reference_idx)
     path(baitset)
 
     output:

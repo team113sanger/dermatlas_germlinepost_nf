@@ -9,7 +9,8 @@ process bam_to_cram {
      
     input:
     tuple val(sample), path(cram_file_sorted_dups_coord), path(cram_file_sorted_dups_coord_index)
-    path(ref_genome)
+    tuple path(ref_genome), path(ref_genome_dict), path(reference_idx)
+
     output:
     tuple val(sample), path("${sample}.sorted.dups.coord.cram"), path("${sample}.sorted.dups.coord.cram.crai"), emit: processed_sample_cram_crai
 
