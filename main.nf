@@ -20,7 +20,10 @@ workflow {
     custom_files = Channel.of(params.custom_files.split(';'))
     .map(it -> file(it, checkIfExists: true))
     .collect()
-    custom_args = Channel.of(params.custom_args.split(';')).collect()
+    custom_args = Channel.of(params.custom_args.split(';'))
+    .collect()
+    .map { '--custom ' + it.join(' --custom ') }
+    
     nih_germline_resource = file(params.nih_germline_resource, checkIfExists: true)
     cancer_gene_census_resource = file(params.cancer_gene_census_resource, checkIfExists: true)
     flag_genes =  file(params.flag_genes, checkIfExists: true)
