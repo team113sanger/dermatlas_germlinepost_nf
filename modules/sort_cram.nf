@@ -14,9 +14,9 @@ process sort_cram {
 
     script:
     """ 
-    sambamba sort -p -m 7GB -n \
+    sambamba sort ${cram_file} -p -m 7GB -n \
     --tmpdir ./tmp /dev/stdin -o ${cram_file}.sorted \
-    ${cram_file}
+   
     """
     
     stub:
