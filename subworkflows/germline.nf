@@ -13,7 +13,7 @@ workflow GERMLINE {
     NF_DEEPVARIANT(channel_inputs_bams, ref_genome, baitset)
     NF_DEEPVARIANT.out.haplos.collectFile(name: "tmp_sample_map.txt"){
         meta, vcf, index ->
-    ["tmp_sample_map.txt", "${meta}\t${vcf.baseName}\n"]
+    ["tmp_sample_map.txt", "${meta}\t${vcf.baseName}.gz\n"]
     }
     .set{ sample_map } 
     NF_DEEPVARIANT.out.haplos
