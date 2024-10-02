@@ -23,10 +23,8 @@ workflow {
     custom_args = Channel.of(params.custom_args.split(';'))
     .collect()
     .map { '--custom ' + it.join(' --custom ') }
-    
-    nih_germline_resource = file(params.nih_germline_resource, checkIfExists: true)
-    cancer_gene_census_resource = file(params.cancer_gene_census_resource, checkIfExists: true)
-    flag_genes =  file(params.flag_genes, checkIfExists: true)
+
+
     
     chroms = Channel.fromPath("$baseDir/assets/grch38_chromosome.txt")
     | splitCsv(sep:"\t")
@@ -81,6 +79,9 @@ workflow {
                    reference_genome)
     
     if (params.summarise_results){
+    nih_germline_resource = file(params.nih_germline_resource, checkIfExists: true)
+    cancer_gene_census_resource = file(params.cancer_gene_census_resource, checkIfExists: true)
+    flag_genes =  file(params.flag_genes, checkIfExists: true)
     COMBINED_SUMMARY(PROCESS_SNPS.out.publish_vars,
                      PROCESS_INDELS.out.publish_vars,
                     nih_germline_resource,
