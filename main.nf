@@ -26,7 +26,7 @@ workflow {
 
 
     
-    chroms = Channel.fromPath("$baseDir/assets/grch38_chromosome.txt")
+    chroms = Channel.fromPath(params.chrom_list)
     | splitCsv(sep:"\t")
     | collect(flat: true)
     chrom_idx = chroms.withIndex()
