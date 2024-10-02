@@ -14,8 +14,9 @@ process sort_cram {
 
     script:
     """ 
-    samtools view -b ${cram_file} | sambamba sort -p -m 7GB -n --tmpdir ./tmp /dev/stdin -o ${cram_file}.sorted
-    samtools quickcheck ${cram_file}.sorted
+    sambamba sort -p -m 7GB -n \
+    --tmpdir ./tmp /dev/stdin -o ${cram_file}.sorted \
+    ${cram_file}
     """
     
     stub:
