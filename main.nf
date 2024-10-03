@@ -51,7 +51,6 @@ workflow {
     | transpose()
     | last()
     | map {it -> tuple([study_id: params.study_id], it)}
-    gvcf_chrom_files.view()
     
     MERGE_COHORT_VCF(gvcf_chrom_files)
     INDEX_COHORT_VCF(MERGE_COHORT_VCF.out.cohort_vcf)

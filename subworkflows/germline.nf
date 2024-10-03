@@ -15,7 +15,15 @@ workflow GERMLINE {
         meta, vcf, index ->
     ["tmp_sample_map.txt", "${meta}\t${vcf.baseName}.gz\n"]
     }
-    .set{ sample_map } 
+    .set{ sample_map }
+    
+    NF_DEEPVARIANT.out.haplos.collectFile(
+        name: "sample_map.txt",
+        storeDir: "${params.outdir}"){
+        meta, vcf, index ->
+    ["sample_map.txt", "${meta}\t${params.outdir}/gatk_haplotypecaller/${vcf.baseName}.gz\n"]
+    }
+    
     NF_DEEPVARIANT.out.haplos
     .map{ sample_id, file, index -> tuple(file, index)}
     .collect()
