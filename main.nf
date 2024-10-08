@@ -16,7 +16,7 @@ workflow {
     baitset = file(params.baitset, checkIfExists: true)
     reference_genome = file(params.reference_genome, checkIfExists: true)
     vep_cache = file(params.vep_cache, checkIfExists: true)
-    vep_config = file(params.vep_config, checkIfExists: true)
+    // vep_config = file(params.vep_config, checkIfExists: true)
     custom_files = Channel.of(params.custom_files.split(';'))
     .map(it -> file(it, checkIfExists: true))
     .collect()
@@ -65,18 +65,22 @@ workflow {
     PROCESS_SNPS(variant_multi.snp_ch,
                  baitset,
                  vep_cache,
-                 vep_config,
                  custom_files,
                  custom_args,
-                 reference_genome)
+                 reference_genome,
+                 params.species,
+                 params.assembly,
+                 params.db_name)
     
     PROCESS_INDELS(variant_multi.indel_ch,
                    baitset,
                    vep_cache,
-                   vep_config,
                    custom_files,
                    custom_args,
-                   reference_genome)
+                   reference_genome, 
+                   params.species,
+                   params.assembly,
+                   params.db_name)
     
     if (params.summarise_results){
     nih_germline_resource = file(params.nih_germline_resource, checkIfExists: true)

@@ -9,11 +9,13 @@ workflow PROCESS_VARIANT_SET {
     variant_ch
     baitset
     vep_cache
-    vep_config
     custom_files
     custom_args
     reference_genome
-    
+    species
+    assembly
+    db_version
+
     main:
     SELECT_VARIANTS(variant_ch)
     MARK_VARIANTS(SELECT_VARIANTS.out.raw_variants, baitset)
@@ -21,10 +23,13 @@ workflow PROCESS_VARIANT_SET {
     if (params.species == "homo_sapiens"){
     ANNOTATE_VARIANTS(FILTER_VARIANTS.out.filtered_variants, 
                       vep_cache, 
-                      vep_config,
                       custom_files,
                       custom_args,
-                      reference_genome)
+                      reference_genome,
+                      species,
+                      assembly,
+                      db_version)
+                      
     CONVERT_TO_TSV(ANNOTATE_VARIANTS.out.vep_annotation)
     }
 
@@ -34,9 +39,9 @@ workflow PROCESS_VARIANT_SET {
                       custom_files,
                       custom_args,
                       reference_genome,
-                      params.species,
-                      params.assembly,
-                      params.db_version)
+                      species,
+                      assembly,
+                      db_version)
     CONVERT_TO_TSV(ANNOTATE_FUR_VARIANTS.out.vep_annotation)
     }
 
