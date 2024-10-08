@@ -24,6 +24,9 @@
     "nih_germline_resource": "/lustre/scratch124/resources/dermatlas/germline/Cancer_national_genomic_test_directory_v7.2_June_2023_gene_smv_summary.tsv",
     "cancer_gene_census_resource": "/lustre/scratch124/resources/dermatlas/COSMIC/cancer_gene_census.v97.genes.tsv",
     "flag_genes": "/lustre/scratch124/resources/dermatlas/germline/FLAG_genes_maftools.tsv",
-    "chrom_list": "${baseDir}/assets/grch38_chromosome.txt"
+    "chrom_list": "${baseDir}/assets/grch38_chromosome.txt",
+    "species" : "homo_sapiens",
+    "assembly" :"GRCh38",
+    "db_version" : "103"
 
 }

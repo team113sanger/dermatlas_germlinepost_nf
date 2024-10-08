@@ -1,0 +1,36 @@
+nextflow_process {
+
+    name "Test Process ANNOTATE_FUR_VARIANTS"
+    script "modules/vep_annotation.nf"
+    process "ANNOTATE_FUR_VARIANTS"
+
+    test("Should run without failures") {
+
+        when {
+        params {
+            load("$baseDir/tests/testdata/test_params.json")
+        }
+        
+            process {
+                """
+                input[0] = tuple([tbc: "abc"], file("${baseDir}/tests/testdata/7098_3140_cohort_raw_snps.marked.target.pass.vcf.gz"), 
+                                        file("${baseDir}/tests/testdata/7098_3140_cohort_raw_snps.marked.target.pass.vcf.gz.tbi"))
+                input[1] = "/home/ubuntu/projects/dermatlas_germlinepost_nf/felis_catus/104"
+                input[2] = [file("/lustre/scratch124/resources/vep/99_lives/SRA_99_Lives.snp_indel.filt.54cats.short.alt.no_header.vcf.gz"), file("/lustre/scratch124/resources/vep/99_lives/SRA_99_Lives.snp_indel.filt.54cats.short.alt.no_header.vcf.gz.tbi")]
+                input[3] = "--custom SRA_99_Lives.snp_indel.filt.54cats.short.alt.no_header.vcf.gz,99_Lives,vcf,exact,0,AF"
+                input[4] = file("/lustre/scratch124/resources/dermatlas/germline/genome.fa")
+                input[5] = "felis_catus"
+                input[6] = "Felis_catus_9.0"
+                input[7] = "104"
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert snapshot(process.out).match()
+        }
+
+    }
+
+}
