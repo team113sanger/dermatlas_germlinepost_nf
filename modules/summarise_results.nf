@@ -1,6 +1,7 @@
 
 
 process CONVERT_TO_TSV {
+    errorStrategy "ignore"
     container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.0"
     publishDir "${params.outdir}/Final_joint_call", mode: "copy"
     input: 
