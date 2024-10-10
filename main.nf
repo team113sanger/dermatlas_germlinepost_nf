@@ -70,7 +70,7 @@ workflow {
                  reference_genome,
                  params.species,
                  params.assembly,
-                 params.db_name)
+                 params.db_version)
     
     PROCESS_INDELS(variant_multi.indel_ch,
                    baitset,
@@ -80,7 +80,7 @@ workflow {
                    reference_genome, 
                    params.species,
                    params.assembly,
-                   params.db_name)
+                   params.db_version)
     
     if (params.summarise_results){
     nih_germline_resource = file(params.nih_germline_resource, checkIfExists: true)

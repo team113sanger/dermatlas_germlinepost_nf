@@ -1,8 +1,8 @@
 nextflow_process {
 
-    name "Test Process ANNOTATE_FUR_VARIANTS"
+    name "Test Process ANNOTATE_VARIANTS"
     script "modules/vep_annotation.nf"
-    process "ANNOTATE_FUR_VARIANTS"
+    process "ANNOTATE_VARIANTS"
 
     test("Should run without failures") {
 
