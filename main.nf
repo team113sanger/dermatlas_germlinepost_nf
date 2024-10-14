@@ -16,7 +16,7 @@ workflow {
     baitset = file(params.baitset, checkIfExists: true)
     reference_genome = file(params.reference_genome, checkIfExists: true)
     vep_cache = file(params.vep_cache, checkIfExists: true)
-    // vep_config = file(params.vep_config, checkIfExists: true)
+    
     custom_files = Channel.of(params.custom_files.split(';'))
     .map(it -> file(it, checkIfExists: true))
     .collect()
@@ -38,7 +38,7 @@ workflow {
         sample_map = POSTPROCESS_ONLY.out.sample_map
         db_ch = GENERATE_GENOMICS_DB(sample_map, chroms, POSTPROCESS_ONLY.out.vcf_ch)
     } else {
-        GERMLINE(CREATE_DICT.out.ref,baitset)
+        GERMLINE(CREATE_DICT.out.ref, baitset)
         sample_map = GERMLINE.out.sample_map
         db_ch = GENERATE_GENOMICS_DB(sample_map, chroms, GERMLINE.out.vcf_ch)
     }
