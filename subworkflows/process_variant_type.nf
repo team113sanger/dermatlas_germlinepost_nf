@@ -9,26 +9,26 @@ workflow PROCESS_VARIANT_SET {
     variant_ch
     baitset
     vep_cache
-    vep_config
-    gnomad_file
-    dbsnp_file
-    clinvar_file
-    cosmic_file
+    custom_files
+    custom_args
     reference_genome
-    
+    species
+    assembly
+    db_version
+
     main:
     SELECT_VARIANTS(variant_ch)
     MARK_VARIANTS(SELECT_VARIANTS.out.raw_variants, baitset)
     FILTER_VARIANTS(MARK_VARIANTS.out.marked_variants, baitset)
     ANNOTATE_VARIANTS(FILTER_VARIANTS.out.filtered_variants, 
                       vep_cache, 
-                      vep_config,
-                      gnomad_file,
-                      dbsnp_file,
-                      clinvar_file,
-                      cosmic_file,
-                      reference_genome)
-
+                      custom_files,
+                      custom_args,
+                      reference_genome,
+                      species,
+                      assembly,
+                      db_version)
+                      
     CONVERT_TO_TSV(ANNOTATE_VARIANTS.out.vep_annotation)
 
     emit:

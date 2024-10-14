@@ -1,6 +1,7 @@
 
 
 process CONVERT_TO_TSV {
+    errorStrategy "ignore"
     container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.0"
     publishDir "${params.outdir}/Final_joint_call", mode: "copy"
     input: 
@@ -14,13 +15,17 @@ process CONVERT_TO_TSV {
     zcat ${vep_vcf} | /opt/repo/scripts/gatk_germline_full_vcf2table.v2.pl -> "${meta.study_id}${meta.suffix}.marked.target.pass.vep.tsv"
     gzip "${meta.study_id}${meta.suffix}.marked.target.pass.vep.tsv"
     """
+    stub:
+    """
+    echo stub > ${meta.study_id}${meta.suffix}.marked.target.pass.vep.tsv.gz
+    """
 }
 
 
 process COMBINED_SUMMARY{
     container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.0"
     publishDir "results/Final_joint_call/sumtabs", mode: 'copy'
-
+    errorStrategy 'ignore'
     input: 
     tuple val(meta), path(VEP_SNP_TSVGZ)
     tuple val(meta), path(VEP_INDEL_TSVGZ)
@@ -46,11 +51,16 @@ process COMBINED_SUMMARY{
     --flags_tsv ${FLAG_GENES} \
     --outdir "."
     """
+    stub:
+    """
+    echo stub > ${meta.study_id}${meta.suffix}.marked.target.pass.vep.gnmadF.tsv.gz
+    echo stub > ${meta.study_id}${meta.suffix}.tsv.gz
+    echo stub > ${meta.study_id}${meta.suffix}.xlsx
+    """
 }
 
 process CONVERT_TO_MAF {
     publishDir "results/Final_joint_call/sumtabs", mode: 'copy'
-    errorStrategy 'ignore'
     container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.0"
 
 
@@ -70,6 +80,12 @@ process CONVERT_TO_MAF {
     --germ_pred_tsv ${NIH_GERMLINE_TSV} \
     --cgc_tsv ${CANCER_GENE_CENSUS} \
     --outdir "."
+    """
+    stub:
+    """
+    echo stub > demo.cohort_snps.indel.marked.target.pass.vep.gnmadF.maf.gz
+    mkdir maftools_plots
+    echo stub > maftools_plots/example.pdf
     """
 
 }
