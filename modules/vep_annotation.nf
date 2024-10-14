@@ -46,9 +46,9 @@ process ANNOTATE_VARIANTS {
     --numbers \
     --polyphen p \
     --domain \
-    --transcript-version \
+    --transcript_version \
     --show_ref_allele \
-    --fork 4 \
+    --fork 4 
     tabix -p vcf ${outfname}
     """
     }
