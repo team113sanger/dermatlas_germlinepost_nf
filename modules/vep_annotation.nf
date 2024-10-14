@@ -25,7 +25,7 @@ process ANNOTATE_VARIANTS {
     --dir_cache ${vep_cache} \
     --db_version ${db_version} \
     --output_file ${outfname} \
-    --buffer_size 20000 \ 
+    --buffer_size 20000 \
     --format vcf \
     --species ${species} \
     --offline \
