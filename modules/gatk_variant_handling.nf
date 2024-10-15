@@ -13,18 +13,20 @@ process GATK_GVCF_PER_CHROM {
     tuple val(CHR), path("*vcf.gz"), emit: chrom_vcf
 
     script:
+    def chrom = CHR[0]
     """
     gatk --java-options "-Xmx4g -Xms4g" GenotypeGVCFs \
        -R "${ref_genome_file}" \
        -V gendb://${GENDB} \
-       -L ${CHR[0]} \
-       -O ${CHR[0]}.vcf.gz \
+       -L ${chrom} \
+       -O ${chrom}.vcf.gz \
        --genomicsdb-shared-posixfs-optimizations true 
     """
 
     stub:
+    def chrom = CHR[0]
     """
-    echo stub > ${CHR[0]}.vcf.gz
+    echo stub > ${chrom}.vcf.gz
     """
 
 }

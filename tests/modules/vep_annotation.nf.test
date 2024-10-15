@@ -1,0 +1,35 @@
+nextflow_process {
+
+    name "Test Process ANNOTATE_VARIANTS"
+    script "modules/vep_annotation.nf"
+    process "ANNOTATE_VARIANTS"
+
+    test("Should run without failures") {
+
+        when {
+        params {
+            load("$baseDir/tests/testdata/test_params.json")
+        }
+        
+            process {
+                """
+                input[0] = tuple([tbc: "abc"], file("/lustre/scratch124/nf-test/germline/7098_3140_cohort_raw_snps.marked.target.pass.vcf.gz"), 
+                                        file("/lustre/scratch124/nf-test/germline/7098_3140_cohort_raw_snps.marked.target.pass.vcf.gz.tbi"))
+                input[1] = "/lustre/scratch124/resources/vep/cache/103"
+                input[2] = [file("/lustre/scratch124/resources/vep/99_lives/SRA_99_Lives.snp_indel.filt.54cats.short.alt.no_header.vcf.gz"), file("/lustre/scratch124/resources/vep/99_lives/SRA_99_Lives.snp_indel.filt.54cats.short.alt.no_header.vcf.gz.tbi")]
+                input[3] = "--custom SRA_99_Lives.snp_indel.filt.54cats.short.alt.no_header.vcf.gz,99_Lives,vcf,exact,0,AF"
+                input[4] = file("/lustre/scratch124/resources/dermatlas/germline/genome.fa")
+                input[5] = "homo_sapiens"
+                input[6] = "GRCh38"
+                input[7] = "103"
+                """
+            }
+        }
+
+        then {
+            assert process.success
+        }
+
+    }
+
+}

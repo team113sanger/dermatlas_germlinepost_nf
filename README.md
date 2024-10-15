@@ -21,29 +21,35 @@ In brief, the pipeline takes a set samples that have been pre-processed by the D
 
 ## Inputs 
 
-Inputs will depend on whether you are runnning in post-processing mode or end-to-end. 
-Only post-processing currently supported. Inputs can be split into those which are cohort dependent and independent.
+Inputs will depend on whether you are runnning in post-processing mode or end-to-end. Inputs can also be split into those which are cohort dependent and independent.
 
 ### Cohort-dependent variables
-`study_id`: Prefix number for the cohort
+- `study_id`: Prefix number for the cohort
+- `outdir`: path to the where you would like the pipeline to output results
+- `post_process_only`: logical determining whether to run post processing or the end-to-end germline analysis. 
+**If true the following inputs are required:**
 `geno_vcf`: a path to a set of .vcf files in a project directory. Note: the pipeline assumes that corresponding index files have been pre-generated and are co-located with vcf and you should use a ** glob match to recursively collect all bamfiles in the directory
-`sample_map`: path to a tab delimited file containing Sample IDs and the vcf files that they correspond to 
-`outdir`: path to the where you would like the pipeline to output results
+`sample_map`: path to a tab delimited file containing Sample IDs and the vcf files that they correspond 
+**If false the following inputs are required:**
+- `tsv_file`: a manifest containing sample ids, associated bam files and their indexes. 
 
 ### Cohort-independent variables
 Reference files that are reused across pipeline executions have been placed within the pipeline's default `nextflow.config` file to simplify configuration. These can be ommited from setup. Behind the scences though, the following reference files are required for a run: 
-- `chrom_file`: path to a text file containing ordered chrosome names See `assets/grch38_chromosome.txt`
+- `chrom_list`: path to a text file containing ordered chrosome names See `assets/grch38_chromosome.txt`
 - `reference_genome`: path to a reference genome file
 - `baitset`: path to a `.bed` file describing the analysed genomic regions
 - `vep_cache`: path to the release directory that contains a vep cache 
-- `vep_config`: path to a file containing vep options. See `assets/vep_config.ini`
-- `gnomad_file`: path to a gnomad annotation file to use in VEP 
-- `dbsnp_file`: path to a DBSNP annotation file to use in VEP 
-- `clinvar_file`: path to a DBSNP annotation file to use in VEP 
-- `cosmic_file`: path to a COSMIC annotation file to use in VEP  
+- `custom_files`: path to a set of annotation file to use in VEP (seperated by semi-colons)
+- `custom_args`: path to a set of arguments to use with each custom file in VEP (seperated by semi-colons)
+- `species`: VEP parameter, specifying the species being analysed (string)
+- `db_name`: VEP parameter, specifying the ensembl data package version and corresponding db
+- `assembly`: VEP parameter, specifying the reference genome build for the run.
+- `summarise_results`: logical (whether to apply Dermatlas post processing into tables and figure)
+If true the following inputs are required:
 - `nih_germline_resource`: path to file containing the information of the set of genes used by the NHS for [germline cancer predisposition diagnosis - prepared by mdc1@sanger.ac.uk](https://gitlab.internal.sanger.ac.uk/DERMATLAS/resources/national_genomic_test_germline_cancer_genes/-/tree/0.1.0?ref_type=tags)
 - `cancer_gene_census_resoruce`: Cancer gene Census list of genes form COSMIC v97 
 - `flag_genes`: path to a list of [FLAG](https://bmcmedgenomics.biomedcentral.com/articles/10.1186/s12920-014-0064-y#Sec11) genes, frequently mutated in normal exomes.
+
 
 Default reference file values supplied within the `nextflow.config` file can be overided by adding them to the params `.json` file. An example complete params file `tests/test_data/test_params.json` is supplied within this repo for demonstation.
 
