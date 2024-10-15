@@ -5,8 +5,6 @@
     "tsv_file" : "${baseDir}/tests/testdata/manifest.tsv",
     "samples_to_process" : -1,
     "bed_dir" : "/lustre/scratch124/casm/team113/ref/DERMATLAS/baits",
-    "bed_file_deepvariant" : "SureSelect_Whole_Human_Exome_v5_GRCh38_liftover_160.sorted.w100.canonical.bed",
-    "bed_file_gatk" : "SureSelect_Whole_Human_Exome_v5_GRCh38_liftover_160.sorted.w100.canonical.bed",
     "run_mode" : "sort_inputs",
     "run_markDuplicates" : true,
     "run_coord_sort_cram" : true,
