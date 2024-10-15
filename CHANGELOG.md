@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0] - 2024-10-02
 ### Added
-- Workflow steps for generating variant calls from dermatlas bams. Triggerable via post-process only = False
+- Workflow steps for generating variant calls from Dermatlas bam files. Triggerable via post-process only = False. New parameters to support these additional steps.
 
 ### Changed 
 - The way that custom annotation files are specified to vep so that the process can be made generic. Now use a single custom files param (with ; seperation) and a custom args flag rather than specifying in the vep config, which was opinionated. 
