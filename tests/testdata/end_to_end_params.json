@@ -19,7 +19,7 @@
     "cancer_gene_census_resource": "/lustre/scratch124/resources/dermatlas/COSMIC/cancer_gene_census.v97.genes.tsv",
     "flag_genes": "/lustre/scratch124/resources/dermatlas/germline/FLAG_genes_maftools.tsv",
     "species": "homo_sapiens",
-    "db_name": "103",
+    "db_version": "103",
     "assembly": "GRCh38",
     "outdir": "results"
 
