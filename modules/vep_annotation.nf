@@ -38,6 +38,7 @@ process ANNOTATE_VARIANTS {
     --flag_pick_allele \
     --canonical \
     --hgvs \
+    --protein \
     --shift_hgvs 1 \
     --fasta ${ref_genome} \
     $custom_args \
@@ -80,6 +81,7 @@ process ANNOTATE_VARIANTS {
     --shift_hgvs 1 \
     --compress_output bgzip \
     --mane \
+    --protein \
     --numbers \
     --fork 4 \
     --domains
