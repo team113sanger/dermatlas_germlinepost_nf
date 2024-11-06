@@ -102,7 +102,151 @@ Created using nextflow's in-built visualitation features.
 
 ```mermaid
 flowchart TB
-    
+    subgraph " "
+    v0["Channel.of"]
+    v3["Channel.of"]
+    v6["Channel.fromPath"]
+    v12["ref_genome"]
+    v14["Channel.fromPath"]
+    v24["baitset"]
+    v42["baitset"]
+    v44["baitset"]
+    v46["vep_cache"]
+    v47["ref_genome"]
+    v48["species"]
+    v49["assembly_name"]
+    v50["db_version"]
+    v54["baitset"]
+    v56["baitset"]
+    v58["vep_cache"]
+    v59["ref_genome"]
+    v60["species"]
+    v61["assembly_name"]
+    v62["db_version"]
+    v65["NIH_GERMLINE_TSV"]
+    v66["CANCER_GENE_CENSUS"]
+    v67["FLAG_GENES"]
+    v71["NIH_GERMLINE_TSV"]
+    v72["CANCER_GENE_CENSUS"]
+    end
+    v13([CREATE_DICT])
+    subgraph GERMLINE
+    subgraph NF_DEEPVARIANT
+    v18([sort_cram])
+    v19([markDuplicates])
+    v21([coord_sort_cram])
+    v22([bam_to_cram])
+    v25([gatk_haplotypecaller])
+    v15(( ))
+    v26(( ))
+    v27(( ))
+    v29(( ))
+    end
+    end
+    subgraph " "
+    v20[" "]
+    v23[" "]
+    v28[" "]
+    v69[" "]
+    v70[" "]
+    v74[" "]
+    v75[" "]
+    end
+    v32([GENERATE_GENOMICS_DB])
+    v33([GATK_GVCF_PER_CHROM])
+    v38([MERGE_COHORT_VCF])
+    v39([INDEX_COHORT_VCF])
+    subgraph PROCESS_SNPS
+    v41([SELECT_VARIANTS])
+    v43([MARK_VARIANTS])
+    v45([FILTER_VARIANTS])
+    v51([ANNOTATE_VARIANTS])
+    v52([CONVERT_TO_TSV])
+    v1(( ))
+    v4(( ))
+    end
+    subgraph PROCESS_INDELS
+    v53([SELECT_VARIANTS])
+    v55([MARK_VARIANTS])
+    v57([FILTER_VARIANTS])
+    v63([ANNOTATE_VARIANTS])
+    v64([CONVERT_TO_TSV])
+    end
+    v68([COMBINED_SUMMARY])
+    v73([CONVERT_TO_MAF])
+    v7(( ))
+    v34(( ))
+    v40(( ))
+    v0 --> v1
+    v3 --> v4
+    v6 --> v7
+    v12 --> v13
+    v13 --> v19
+    v13 --> v22
+    v13 --> v25
+    v13 --> v33
+    v14 --> v15
+    v15 --> v18
+    v18 --> v19
+    v19 --> v21
+    v19 --> v20
+    v21 --> v22
+    v21 --> v25
+    v22 --> v23
+    v24 --> v25
+    v25 --> v26
+    v25 --> v27
+    v25 --> v29
+    v27 --> v28
+    v7 --> v32
+    v26 --> v32
+    v29 --> v32
+    v32 --> v33
+    v7 --> v33
+    v33 --> v34
+    v34 --> v38
+    v38 --> v39
+    v39 --> v40
+    v40 --> v41
+    v41 --> v43
+    v42 --> v43
+    v43 --> v45
+    v44 --> v45
+    v45 --> v51
+    v46 --> v51
+    v47 --> v51
+    v48 --> v51
+    v49 --> v51
+    v50 --> v51
+    v1 --> v51
+    v4 --> v51
+    v51 --> v52
+    v52 --> v68
+    v40 --> v53
+    v53 --> v55
+    v54 --> v55
+    v55 --> v57
+    v56 --> v57
+    v57 --> v63
+    v58 --> v63
+    v59 --> v63
+    v60 --> v63
+    v61 --> v63
+    v62 --> v63
+    v1 --> v63
+    v4 --> v63
+    v63 --> v64
+    v64 --> v68
+    v65 --> v68
+    v66 --> v68
+    v67 --> v68
+    v68 --> v73
+    v68 --> v70
+    v68 --> v69
+    v71 --> v73
+    v72 --> v73
+    v73 --> v75
+    v73 --> v74
 ```
 
 ## Testing
