@@ -10,7 +10,7 @@
     "run_coord_sort_cram" : true,
     "run_deepvariant" : false,
     "run_haplotypecaller" : true,
-    "geno_vcf": "/lustre/scratch124/nf-test/germline/**.gz",
+    "geno_vcf": "/lustre/scratch124/nf-test/germline/**.gz$",
     "sample_map": "${baseDir}/tests/testdata/sample_map.txt",
     "reference_genome":"/lustre/scratch124/resources/dermatlas/germline/genome.fa",
     "baitset": "/lustre/scratch124/resources/dermatlas/germline/GRCh38_WES5_canonical_pad100.merged.bed",
