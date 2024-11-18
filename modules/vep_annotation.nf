@@ -33,7 +33,6 @@ process ANNOTATE_VARIANTS {
     --biotype \
     --vcf \
     --sift s \
-    --no_stats \
     --assembly ${assembly_name} \
     --flag_pick_allele \
     --canonical \
@@ -74,7 +73,6 @@ process ANNOTATE_VARIANTS {
     --biotype \
     --vcf \
     --sift s \
-    --no_stats \
     --flag_pick_allele_gene \
     --canonical \
     --hgvs \
