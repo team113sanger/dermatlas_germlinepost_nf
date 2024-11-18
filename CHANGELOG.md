@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.4] - 2024-11-18
+### Changed
+- Removed `--no_stats` flag from vep runs in order to prevent an observed VEP bug caused
+by mutliallelic variants (see [here](https://github.com/Ensembl/ensembl-vep/issues/1013) and [here](https://github.com/Ensembl/ensembl-vep/issues/818))
+
 ## [0.2.3] - 2024-11-08
 ### Changed
 - Updated the output path for the oncoplotting and summary steps (summ_tabs)
