@@ -33,5 +33,3 @@ process deepvariant {
     --num_shards=1
     """
 }
-
-//  --regions=/bed_files/Twist/Twist_Human_Core_Exome_BI-CTR_padded_merged.bed

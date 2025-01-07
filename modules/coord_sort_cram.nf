@@ -1,5 +1,3 @@
-//params.ref_dir = "/lustre/scratch118/humgen/resources/ref/Homo_sapiens/HS38DH/"
-
 process coord_sort_cram {
     tag "$sample"
     publishDir path: "${params.outdir}/coord_sort_cram/",

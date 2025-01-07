@@ -11,6 +11,7 @@ dermatlas_germlinepost_nf is a bioinformatics pipeline written in [Nextflow](htt
 ## Pipeline summary
 
 In brief, the pipeline takes a set samples that have been pre-processed by the Dermatlas ingestion pipeline and then:
+- Optional: Prepares samples for calling with GATK haplotype caller
 - Generates a GenomicsDB datastore for joint calling germline variants
 - Creates index files required by GATK for processing your genome of interest
 - Generates per-chromosome variant call files for the cohort
@@ -27,9 +28,11 @@ Inputs will depend on whether you are runnning in post-processing mode or end-to
 - `study_id`: Prefix number for the cohort
 - `outdir`: path to the where you would like the pipeline to output results
 - `post_process_only`: logical determining whether to run post processing or the end-to-end germline analysis. 
+
 **If true the following inputs are required:**
 `geno_vcf`: a path to a set of .vcf files in a project directory. Note: the pipeline assumes that corresponding index files have been pre-generated and are co-located with vcf and you should use a ** glob match to recursively collect all bamfiles in the directory
 `sample_map`: path to a tab delimited file containing Sample IDs and the vcf files that they correspond 
+
 **If false the following inputs are required:**
 - `tsv_file`: a manifest containing sample ids, associated bam files and their indexes. 
 
