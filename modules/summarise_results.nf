@@ -22,8 +22,8 @@ process CONVERT_TO_TSV {
 }
 
 
-process COMBINED_SUMMARY{
-    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.0"
+process COMBINED_SUMMARY {
+    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.1"
     publishDir "${params.outdir}/Final_joint_call/sumtabs", mode: 'copy'
     errorStrategy 'ignore'
     input: 
