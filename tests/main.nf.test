@@ -13,8 +13,7 @@ nextflow_pipeline {
 
         then {
             assert workflow.success
-            assert snapshot(workflow.out.cohort_maf).match()
-            assert snapshot(workflow.out.summary_files).match()
+            assert snapshot(workflow.out).match()
 
         }
 

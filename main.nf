@@ -97,6 +97,6 @@ workflow {
     }
     emit:
     summary_files = COMBINED_SUMMARY.out.outfile
-    cohort_maf = CONVERT_TO_MAF.out.maf_file
+    cohort_maf = CONVERT_TO_MAF.out.maf
 
 }
