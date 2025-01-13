@@ -12,7 +12,7 @@ include { POSTPROCESS_ONLY } from "./subworkflows/postprocess_only.nf"
 include { COMBINED_SUMMARY;CONVERT_TO_MAF } from "./modules/summarise_results.nf"
 
 workflow {
-
+    main:
     baitset = file(params.baitset, checkIfExists: true)
     reference_genome = file(params.reference_genome, checkIfExists: true)
     vep_cache = file(params.vep_cache, checkIfExists: true)
@@ -95,4 +95,8 @@ workflow {
                         nih_germline_resource,
                         cancer_gene_census_resource)
     }
+    emit:
+    summary_files = COMBINED_SUMMARY.out.outfile
+    cohort_maf = CONVERT_TO_MAF.out.maf_file
+
 }
