@@ -11,7 +11,7 @@ include { POSTPROCESS_ONLY } from "./subworkflows/postprocess_only.nf"
 
 include { COMBINED_SUMMARY;CONVERT_TO_MAF } from "./modules/summarise_results.nf"
 
-workflow {
+workflow DERMATLAS_GERMLINE {
     main:
     baitset = file(params.baitset, checkIfExists: true)
     reference_genome = file(params.reference_genome, checkIfExists: true)
@@ -99,4 +99,8 @@ workflow {
     summary_files = COMBINED_SUMMARY.out.outfile
     cohort_maf = CONVERT_TO_MAF.out.maf
 
+}
+
+workflow {
+    DERMATLAS_GERMLINE()
 }
