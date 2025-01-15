@@ -14,8 +14,10 @@ nextflow_workflow {
 
         then {
             assert workflow.success
-            assert snapshot(workflow.out.summary_files).match()
-
+            def snp_variants = path(workflow.out.snp_file[0][1])
+            def indel_variants = path(workflow.out.indel_file[0][1])
+            assert snapshot(snp_variants.vcf.variantsMD5,
+                            indel_variants.vcf.variantsMD5).match()
         }
 
     }

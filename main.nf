@@ -96,8 +96,11 @@ workflow DERMATLAS_GERMLINE {
                         cancer_gene_census_resource)
     }
     emit:
+    indel_file = PROCESS_INDELS.out.annotated_vars
+    snp_file = PROCESS_SNPS.out.annotated_vars
+    
     summary_files = COMBINED_SUMMARY.out.outfile
-    cohort_maf = CONVERT_TO_MAF.out.maf
+    cohort_maf = CONVERT_TO_MAF.out.oncoplots
 
 }
 
