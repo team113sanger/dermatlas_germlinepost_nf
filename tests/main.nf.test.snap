@@ -2,12 +2,15 @@
     "Should run without failures": {
         "content": [
             "31ae18f6750ba691e561a8d73f1891a6",
-            "88ba04e6cc5016e6017e1bfb89e14773"
+            "6f79e4e024d43682611d3591e572e436",
+            [
+                "6676_cohort_raw_snps.indel.marked.target.pass.vep.gnmadF.maf.gz:md5,5c7055d88b8b7b3aa99c9315d9c43b2c"
+            ]
         ],
         "meta": {
             "nf-test": "0.8.4",
             "nextflow": "23.10.1"
         },
-        "timestamp": "2025-01-15T18:03:42.638451"
+        "timestamp": "2025-01-16T14:02:46.515696"
     }
 }

@@ -100,7 +100,7 @@ workflow DERMATLAS_GERMLINE {
     snp_file = PROCESS_SNPS.out.annotated_vars
     
     summary_files = COMBINED_SUMMARY.out.outfile
-    cohort_maf = CONVERT_TO_MAF.out.oncoplots
+    cohort_maf = CONVERT_TO_MAF.out.maf
 
 }
 
