@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.7] - 2024-02-12
 ### Fixed
 - Patching an issue with post-process-only set to true where "input name collision" was declared. May related to double declaration of `vcf_ch` in `post_process_only.nf`.
+### Added
+- Improved testing coverage and end-to-end pipeline test
 
 ## [0.2.6] - 2024-01-08
 ### Changed
