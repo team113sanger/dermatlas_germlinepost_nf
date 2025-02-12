@@ -33,4 +33,5 @@ workflow PROCESS_VARIANT_SET {
 
     emit:
     publish_vars = CONVERT_TO_TSV.out.tsv_file 
+    annotated_vars = ANNOTATE_VARIANTS.out.vep_annotation
 }

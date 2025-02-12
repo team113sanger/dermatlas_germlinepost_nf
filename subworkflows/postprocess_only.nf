@@ -1,15 +1,6 @@
 workflow POSTPROCESS_ONLY {
 
     main:
-    Channel.fromPath(params.geno_vcf)
-    .map { file -> 
-            index = file + ".tbi"
-            tuple(file, index)}
-     .collect()
-     .map { file_list -> tuple([study_id: params.study_id], file_list)}
-     .set{ vcf_ch }
-
-
     sample_map = file(params.sample_map, checkIfExists: true)
 
     Channel.fromPath(sample_map)
