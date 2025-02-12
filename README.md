@@ -29,11 +29,11 @@ Inputs will depend on whether you are runnning in post-processing mode or end-to
 - `outdir`: path to the where you would like the pipeline to output results
 - `post_process_only`: logical determining whether to run post processing or the end-to-end germline analysis. 
 
-**If true the following inputs are required:**
-`geno_vcf`: a path to a set of .vcf files in a project directory. Note: the pipeline assumes that corresponding index files have been pre-generated and are co-located with vcf and you should use a ** glob match to recursively collect all bamfiles in the directory
-`sample_map`: path to a tab delimited file containing Sample IDs and the vcf files that they correspond 
+**If true, the following inputs are required:**
+- `geno_vcf`: a path to a set of .vcf files in a project directory. Note: the pipeline assumes that corresponding index files have been pre-generated and are co-located with vcf and you should use a ** glob match to recursively collect all bamfiles in the directory
+- `sample_map`: path to a tab delimited file containing Sample IDs and the vcf files that they correspond 
 
-**If false the following inputs are required:**
+**If false, the following inputs are required:**
 - `tsv_file`: a manifest containing sample ids, associated bam files and their indexes. 
 
 ### Cohort-independent variables
@@ -48,7 +48,7 @@ Reference files that are reused across pipeline executions have been placed with
 - `db_name`: VEP parameter, specifying the ensembl data package version and corresponding db
 - `assembly`: VEP parameter, specifying the reference genome build for the run.
 - `summarise_results`: logical (whether to apply Dermatlas post processing into tables and figure)
-If true the following inputs are required:
+**If true, the following inputs are required:**
 - `nih_germline_resource`: path to file containing the information of the set of genes used by the NHS for [germline cancer predisposition diagnosis - prepared by mdc1@sanger.ac.uk](https://gitlab.internal.sanger.ac.uk/DERMATLAS/resources/national_genomic_test_germline_cancer_genes/-/tree/0.1.0?ref_type=tags)
 - `cancer_gene_census_resoruce`: Cancer gene Census list of genes form COSMIC v97 
 - `flag_genes`: path to a list of [FLAG](https://bmcmedgenomics.biomedcentral.com/articles/10.1186/s12920-014-0064-y#Sec11) genes, frequently mutated in normal exomes.
@@ -80,7 +80,7 @@ module load /software/team113/modules/modulefiles/tw/0.6.2
 # Create a nextflow job that will spawn other jobs
 
 nextflow run 'https://gitlab.internal.sanger.ac.uk/DERMATLAS/analysis-methods/dermatlas_germlinepost_nf' \
--r 0.2.4 \
+-r 0.2.7 \
 -params-file $PARAMS_FILE \
 -c nextflow.config \
 -profile farm22 
