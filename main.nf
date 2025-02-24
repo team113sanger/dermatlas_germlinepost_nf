@@ -50,7 +50,7 @@ workflow DERMATLAS_GERMLINE {
     | toSortedList { item -> item[0][1]}
     | transpose()
     | last()
-    | map {it -> tuple([study_id: params.study_id], it)}
+    | map {it -> [[study_id: params.study_id], it]}
     
     MERGE_COHORT_VCF(gvcf_chrom_files)
     INDEX_COHORT_VCF(MERGE_COHORT_VCF.out.cohort_vcf)
@@ -86,8 +86,19 @@ workflow DERMATLAS_GERMLINE {
     nih_germline_resource = file(params.nih_germline_resource, checkIfExists: true)
     cancer_gene_census_resource = file(params.cancer_gene_census_resource, checkIfExists: true)
     flag_genes =  file(params.flag_genes, checkIfExists: true)
-    COMBINED_SUMMARY(PROCESS_SNPS.out.publish_vars,
-                     PROCESS_INDELS.out.publish_vars,
+    
+    
+    PROCESS_SNPS.out.publish_vars.join(PROCESS_INDELS.out.publish_vars)
+    .collectFile(storeDir: "${params.outdir}/${params.release_version}"){
+        meta, file, index -> 
+        new File("${params.outdir}/summary").mkdirs()
+        def filename = "sample_list.tsv"
+        [filename, "${meta["sample_id"]}\n"]} 
+    | set {sample_list}
+
+    VCF_TO_KEEP_MAF(sample_list)
+    VCF_TO_PASS_MAF(sample_list)
+
                     nih_germline_resource,
                     cancer_gene_census_resource,
                     flag_genes)
