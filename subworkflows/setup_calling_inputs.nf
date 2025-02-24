@@ -1,4 +1,4 @@
-workflow POSTPROCESS_ONLY {
+workflow SETUP_CALLING_INPUTS {
 
     main:
     sample_map = file(params.sample_map, checkIfExists: true)

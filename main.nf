@@ -6,7 +6,7 @@ include { CREATE_DICT } from "./modules/generate_gatk_ref.nf"
 include { GATK_GVCF_PER_CHROM; MERGE_COHORT_VCF;INDEX_COHORT_VCF} from "./modules/gatk_variant_handling.nf"
 include { PROCESS_VARIANT_SET as PROCESS_SNPS; PROCESS_VARIANT_SET as PROCESS_INDELS } from "./subworkflows/process_variant_type.nf"
 include { GERMLINE } from "./subworkflows/call_variants.nf"
-include { POSTPROCESS_ONLY } from "./subworkflows/postprocess_only.nf"
+include { SETUP_CALLING_INPUTS } from "./subworkflows/setup_calling_inputs.nf"
 include { GERMLINE_COHORT_ANALYSIS } from "./subworkflows/summarise_germline_analysis.nf"
 
 
@@ -35,9 +35,9 @@ workflow DERMATLAS_GERMLINE {
     CREATE_DICT(reference_genome)
     
     if (params.post_process_only){
-        POSTPROCESS_ONLY()
-        sample_map = POSTPROCESS_ONLY.out.sample_map
-        db_ch = GENERATE_GENOMICS_DB(sample_map, chroms, POSTPROCESS_ONLY.out.vcf_ch)
+        SETUP_CALLING_INPUTS()
+        sample_map = SETUP_CALLING_INPUTS.out.sample_map
+        db_ch = GENERATE_GENOMICS_DB(sample_map, chroms, SETUP_CALLING_INPUTS.out.vcf_ch)
     } else {
         GERMLINE(CREATE_DICT.out.ref, baitset)
         sample_map = GERMLINE.out.sample_map
