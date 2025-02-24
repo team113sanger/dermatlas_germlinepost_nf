@@ -2,7 +2,7 @@
 
 process CONVERT_TO_TSV {
     errorStrategy "ignore"
-    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.2"
+    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.3"
     publishDir "${params.outdir}/Final_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(vep_vcf), path(vep_index)
@@ -22,7 +22,7 @@ process CONVERT_TO_TSV {
 }
 process FILTER_AND_ONCOPLOT {
     publishDir "${params.outdir}/Final_joint_call/sumtabs", mode: 'copy'
-    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline/feature/upgrade_rdeps:79f4c529"
+    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.3"
 
     input:
     tuple val(meta), path(maf)
