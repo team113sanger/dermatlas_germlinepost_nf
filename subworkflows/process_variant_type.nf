@@ -28,7 +28,7 @@ workflow PROCESS_VARIANT_SET {
                       species,
                       assembly,
                       db_version)
-                      
+
     CONVERT_TO_TSV(ANNOTATE_VARIANTS.out.vep_annotation)
 
     emit:

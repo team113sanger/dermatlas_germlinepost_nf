@@ -1,4 +1,4 @@
-include { NF_DEEPVARIANT } from "../subworkflows/hgi_nfdeepvariant.nf"
+include { NF_DEEPVARIANT } from "../subworkflows/variant_generation.nf"
 workflow GERMLINE {
     take: 
     ref_genome

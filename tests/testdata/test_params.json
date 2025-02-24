@@ -24,6 +24,9 @@
     "chrom_list": "${baseDir}/assets/grch38_chromosome.txt",
     "species" : "homo_sapiens",
     "assembly" :"GRCh38",
-    "db_version" : "103"
+    "db_version" : "103",
+    "filter_col": "gnomAD_AF",
+    "alternative_transcripts": "/lustre/scratch124/resources/dermatlas/ensembl/dermatlas_noncanonical_transcripts_ens103.v2.tsv"
+
 
 }

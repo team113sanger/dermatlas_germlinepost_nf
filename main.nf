@@ -5,27 +5,28 @@ include { GENERATE_GENOMICS_DB } from "./modules/generate_genomicsdb.nf"
 include { CREATE_DICT } from "./modules/generate_gatk_ref.nf"
 include { GATK_GVCF_PER_CHROM; MERGE_COHORT_VCF;INDEX_COHORT_VCF} from "./modules/gatk_variant_handling.nf"
 include { PROCESS_VARIANT_SET as PROCESS_SNPS; PROCESS_VARIANT_SET as PROCESS_INDELS } from "./subworkflows/process_variant_type.nf"
-include { NF_DEEPVARIANT } from "./subworkflows/hgi_nfdeepvariant.nf"
-include { GERMLINE } from "./subworkflows/germline.nf"
+include { GERMLINE } from "./subworkflows/call_variants.nf"
 include { POSTPROCESS_ONLY } from "./subworkflows/postprocess_only.nf"
+include { GERMLINE_COHORT_ANALYSIS } from "./subworkflows/summarise_germline_analysis.nf"
 
-include { COMBINED_SUMMARY;CONVERT_TO_MAF } from "./modules/summarise_results.nf"
+
 
 workflow DERMATLAS_GERMLINE {
     main:
+    // Setup parameters and variants
     baitset = file(params.baitset, checkIfExists: true)
     reference_genome = file(params.reference_genome, checkIfExists: true)
     vep_cache = file(params.vep_cache, checkIfExists: true)
+    alternative_transcripts = file(params.alternative_transcripts)
     
     custom_files = Channel.of(params.custom_files.split(';'))
     .map(it -> file(it, checkIfExists: true))
     .collect()
+    
     custom_args = Channel.of(params.custom_args.split(';'))
     .collect()
     .map { '--custom ' + it.join(' --custom ') }
 
-
-    
     chroms = Channel.fromPath(params.chrom_list)
     | splitCsv(sep:"\t")
     | collect(flat: true)
@@ -46,6 +47,7 @@ workflow DERMATLAS_GERMLINE {
     GATK_GVCF_PER_CHROM(db_ch, 
                     CREATE_DICT.out.ref, 
                     chrom_idx)
+
     gvcf_chrom_files = GATK_GVCF_PER_CHROM.out.chrom_vcf
     | toSortedList { item -> item[0][1]}
     | transpose()
@@ -83,35 +85,23 @@ workflow DERMATLAS_GERMLINE {
                    params.db_version)
     
     if (params.summarise_results){
-    nih_germline_resource = file(params.nih_germline_resource, checkIfExists: true)
-    cancer_gene_census_resource = file(params.cancer_gene_census_resource, checkIfExists: true)
-    flag_genes =  file(params.flag_genes, checkIfExists: true)
-    
-    
-    PROCESS_SNPS.out.publish_vars.join(PROCESS_INDELS.out.publish_vars)
-    .collectFile(storeDir: "${params.outdir}/${params.release_version}"){
-        meta, file, index -> 
-        new File("${params.outdir}/summary").mkdirs()
-        def filename = "sample_list.tsv"
-        [filename, "${meta["sample_id"]}\n"]} 
-    | set {sample_list}
 
-    VCF_TO_KEEP_MAF(sample_list)
-    VCF_TO_PASS_MAF(sample_list)
+    snp_conversion_ch = PROCESS_SNPS.out.annotated_vars
+    indel_conversion_ch = PROCESS_INDELS.out.annotated_vars
 
-                    nih_germline_resource,
-                    cancer_gene_census_resource,
-                    flag_genes)
-    CONVERT_TO_MAF(COMBINED_SUMMARY.out.outfile,
-                        nih_germline_resource,
-                        cancer_gene_census_resource)
+    GERMLINE_COHORT_ANALYSIS(snp_conversion_ch, 
+                             indel_conversion_ch,
+                             params.assembly,
+                             params.filter_col,
+                             file(params.nih_germline_resource, checkIfExists: true),
+                             file(params.cancer_gene_census_resource, checkIfExists: true),
+                             file(params.flag_genes, checkIfExists: true),
+                             params.outdir,
+                             params.release_version,
+                             alternative_transcripts)
+    
     }
-    emit:
-    indel_file = PROCESS_INDELS.out.annotated_vars
-    snp_file = PROCESS_SNPS.out.annotated_vars
-    
-    summary_files = COMBINED_SUMMARY.out.outfile
-    cohort_maf = CONVERT_TO_MAF.out.maf
+
 
 }
 
