@@ -97,8 +97,6 @@ workflow DERMATLAS_GERMLINE {
                              file(params.nih_germline_resource, checkIfExists: true),
                              file(params.cancer_gene_census_resource, checkIfExists: true),
                              file(params.flag_genes, checkIfExists: true),
-                             params.outdir,
-                             params.release_version,
                              alternative_transcripts)
     
     }
