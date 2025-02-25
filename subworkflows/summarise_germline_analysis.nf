@@ -52,10 +52,10 @@ workflow GERMLINE_COHORT_ANALYSIS {
                     alternative_transcripts)
 
     FILTER_AND_ONCOPLOT(VCF_TO_KEEP_MAF.out.maf, 
-                        sample_list, 
                         nih_germline_resource, 
                         cancer_gene_census_resource, 
-                        flag_genes)
+                        flag_genes, 
+                        sample_list)
     emit: 
         FILTER_AND_ONCOPLOT.out
 }
