@@ -21,8 +21,7 @@ workflow GERMLINE_COHORT_ANALYSIS {
     .collectFile(name: 'vcf_list.txt', newLine: true)
     .set {vcf_list}
 
-    Channel.fromPath(sample_map)
-    .splitCsv(sep:"\t")
+    sample_map
     .map { row -> row[0]}
     .collectFile(name: 'sample_list.txt', newLine: true)
     .set {sample_list}
