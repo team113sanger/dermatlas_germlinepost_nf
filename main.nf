@@ -91,6 +91,7 @@ workflow DERMATLAS_GERMLINE {
 
     GERMLINE_COHORT_ANALYSIS(snp_conversion_ch, 
                              indel_conversion_ch,
+                             sample_map,
                              params.assembly,
                              params.filter_col,
                              file(params.nih_germline_resource, checkIfExists: true),

@@ -32,24 +32,20 @@ process FILTER_AND_ONCOPLOT {
     path(samples_list)
 
     output: 
-    path ("*.gnmadF.maf.gz"), emit: maf
-    path("maftools_plots/*"), emit: oncoplots
+    path("results*/*"), emit: oncoplots
     script: 
     """
     Rscript /opt/repo/scripts/filter_germline_mafs.R \
     --input_maf ${maf} \
+    --outdir "." \
     --germ_pred_tsv ${NIH_GERMLINE_TSV} \
-    --flags_tsv ${FLAG_GENES} \
     --cgc_tsv ${CANCER_GENE_CENSUS} \
+    --flags_tsv ${FLAG_GENES} \
     --prefix ${meta.study_id}_germline \
-    --samples ${samples_list} \
-    --outdir "."
+    --samples ${samples_list}
     """
     stub:
     """
-    echo stub > demo.cohort_snps.indel.marked.target.pass.vep.gnmadF.maf.gz
-    mkdir maftools_plots
-    echo stub > maftools_plots/example.pdf
     """
 
 }
