@@ -22,8 +22,9 @@ process CONVERT_TO_TSV {
 }
 process FILTER_AND_ONCOPLOT {
     publishDir "${params.outdir}/Final_joint_call/sumtabs", mode: 'copy'
-    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.3"
-
+    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline/feature/memory_bug:86cfef7d"
+    memory '16.GB'
+    
     input:
     tuple val(meta), path(maf)
     path(NIH_GERMLINE_TSV)
