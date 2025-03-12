@@ -101,7 +101,6 @@ workflow DERMATLAS_GERMLINE {
     snp_conversion_ch = PROCESS_SNPS.out.annotated_vars
     indel_conversion_ch = PROCESS_INDELS.out.annotated_vars
     
-    sample_map.view()
     GERMLINE_COHORT_ANALYSIS(snp_conversion_ch, 
                              indel_conversion_ch,
                              sample_map,
