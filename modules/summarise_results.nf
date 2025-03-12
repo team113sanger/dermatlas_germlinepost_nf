@@ -22,7 +22,7 @@ process CONVERT_TO_TSV {
 }
 process FILTER_AND_ONCOPLOT {
     publishDir "${params.outdir}/Final_joint_call/sumtabs", mode: 'copy'
-    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline/feature/memory_bug:86cfef7d"
+    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.0"
     memory '16.GB'
     
     input:
