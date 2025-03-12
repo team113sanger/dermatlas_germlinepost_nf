@@ -55,7 +55,6 @@ workflow DERMATLAS_GERMLINE {
     }
 
     log.info("Setups complete")
-    CREATE_DICT.out.ref.view()
     GATK_GVCF_PER_CHROM(db_ch, 
                     CREATE_DICT.out.ref, 
                     chrom_idx)
