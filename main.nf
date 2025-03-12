@@ -14,20 +14,30 @@ include { GERMLINE_COHORT_ANALYSIS } from "./subworkflows/summarise_germline_ana
 workflow DERMATLAS_GERMLINE {
     main:
     // Setup parameters and variants
+    log.info("Checking baitset path: ${params.baitset}")
     baitset = file(params.baitset, checkIfExists: true)
+    log.info("Checking refgenome path: ${params.reference_genome}")
     reference_genome = file(params.reference_genome, checkIfExists: true)
+    log.info("Checking VEP cache path: ${params.vep_cache}")
     vep_cache = file(params.vep_cache, checkIfExists: true)
-    alternative_transcripts = file(params.alternative_transcripts)
-    
+    log.info("Checking alt transcript path: ${params.alternative_transcripts}")
+    alternative_transcripts = file(params.alternative_transcripts, checkIfExists: true)
+
+    nih_genes = file(params.nih_germline_resource, checkIfExists: true)
+    cgc_genes = file(params.cancer_gene_census_resource, checkIfExists: true)
+    flags = file(params.flag_genes, checkIfExists: true)
+
+
     custom_files = Channel.of(params.custom_files.split(';'))
     .map(it -> file(it, checkIfExists: true))
     .collect()
-    
+    log.info("Custom files exist")
     custom_args = Channel.of(params.custom_args.split(';'))
     .collect()
     .map { '--custom ' + it.join(' --custom ') }
-
-    chroms = Channel.fromPath(params.chrom_list)
+    log.info("Checking chrom list path: ${params.chrom_list}")
+    
+    chroms = Channel.fromPath(params.chrom_list, checkIfExists: true)
     | splitCsv(sep:"\t")
     | collect(flat: true)
     chrom_idx = chroms.flatten().toList().map { it.withIndex() }
@@ -44,6 +54,8 @@ workflow DERMATLAS_GERMLINE {
         db_ch = GENERATE_GENOMICS_DB(sample_map, chroms, GERMLINE.out.vcf_ch)
     }
 
+    log.info("Setups complete")
+    CREATE_DICT.out.ref.view()
     GATK_GVCF_PER_CHROM(db_ch, 
                     CREATE_DICT.out.ref, 
                     chrom_idx)
@@ -88,15 +100,16 @@ workflow DERMATLAS_GERMLINE {
 
     snp_conversion_ch = PROCESS_SNPS.out.annotated_vars
     indel_conversion_ch = PROCESS_INDELS.out.annotated_vars
-
+    
+    sample_map.view()
     GERMLINE_COHORT_ANALYSIS(snp_conversion_ch, 
                              indel_conversion_ch,
                              sample_map,
                              params.assembly,
                              params.filter_col,
-                             file(params.nih_germline_resource, checkIfExists: true),
-                             file(params.cancer_gene_census_resource, checkIfExists: true),
-                             file(params.flag_genes, checkIfExists: true),
+                             nih_genes,
+                             cgc_genes,
+                             flags,
                              alternative_transcripts)
     
     }

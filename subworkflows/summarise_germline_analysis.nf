@@ -19,9 +19,10 @@ workflow GERMLINE_COHORT_ANALYSIS {
     .concat(indel_conversion_ch)
     .map { meta, file, index -> file.baseName + ".gz" }
     .collectFile(name: 'vcf_list.txt', newLine: true)
-    .set {vcf_list}
+    .set { vcf_list }
 
     sample_map
+    .splitCsv(sep: "\t", header: false)
     .map { row -> row[0]}
     .collectFile(name: 'sample_list.txt', newLine: true)
     .set {sample_list}
