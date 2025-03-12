@@ -2,7 +2,7 @@
 
 process CONVERT_TO_TSV {
     errorStrategy "ignore"
-    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.5.3"
+    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.6.0"
     publishDir "${params.outdir}/Final_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(vep_vcf), path(vep_index)
