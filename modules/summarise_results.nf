@@ -36,6 +36,7 @@ process FILTER_AND_ONCOPLOT {
 
     output: 
     path("results*/*"), emit: oncoplots
+    
     script: 
     """
     Rscript /opt/repo/scripts/filter_germline_mafs.R \
