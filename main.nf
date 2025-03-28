@@ -111,6 +111,8 @@ workflow DERMATLAS_GERMLINE {
                              alternative_transcripts)
     
     }
+    emit: 
+        GERMLINE_COHORT_ANALYSIS.out.results
 
 
 }
