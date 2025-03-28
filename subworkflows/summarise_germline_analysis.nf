@@ -57,5 +57,5 @@ workflow GERMLINE_COHORT_ANALYSIS {
                         flag_genes, 
                         sample_list)
     emit: 
-        results = FILTER_AND_ONCOPLOT.out
+        results = FILTER_AND_ONCOPLOT.out.oncoplots
 }
