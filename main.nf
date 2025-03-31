@@ -113,6 +113,9 @@ workflow DERMATLAS_GERMLINE {
     }
     emit: 
         GERMLINE_COHORT_ANALYSIS.out.results
+        indel_file = PROCESS_INDELS.out.annotated_vars
+        snp_file = PROCESS_SNPS.out.annotated_vars
+
 
 
 }
