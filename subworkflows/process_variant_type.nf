@@ -29,9 +29,7 @@ workflow PROCESS_VARIANT_SET {
                       assembly,
                       db_version)
 
-    CONVERT_TO_TSV(ANNOTATE_VARIANTS.out.vep_annotation)
 
     emit:
-    publish_vars = CONVERT_TO_TSV.out.tsv_file 
     annotated_vars = ANNOTATE_VARIANTS.out.vep_annotation
 }
