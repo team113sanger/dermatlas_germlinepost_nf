@@ -2,7 +2,6 @@
 
 include { SELECT_VARIANTS;MARK_VARIANTS;FILTER_VARIANTS} from "../modules/gatk_variant_handling.nf"
 include { ANNOTATE_VARIANTS } from "../modules/vep_annotation.nf"
-include { CONVERT_TO_TSV } from "../modules/summarise_results.nf"
 
 workflow PROCESS_VARIANT_SET {
     take:
