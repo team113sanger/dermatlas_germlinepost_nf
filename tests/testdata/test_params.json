@@ -26,6 +26,7 @@
     "assembly" :"GRCh38",
     "db_version" : "103",
     "filter_col": "gnomAD_AF",
+    "publish_intermediates": false,
     "alternative_transcripts": "/lustre/scratch124/resources/dermatlas/ensembl/dermatlas_noncanonical_transcripts_ens103.v2.tsv"
 
 
