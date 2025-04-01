@@ -52,6 +52,7 @@ Reference files that are reused across pipeline executions have been placed with
 - `nih_germline_resource`: path to file containing the information of the set of genes used by the NHS for [germline cancer predisposition diagnosis - prepared by mdc1@sanger.ac.uk](https://gitlab.internal.sanger.ac.uk/DERMATLAS/resources/national_genomic_test_germline_cancer_genes/-/tree/0.1.0?ref_type=tags)
 - `cancer_gene_census_resoruce`: Cancer gene Census list of genes form COSMIC v97 
 - `flag_genes`: path to a list of [FLAG](https://bmcmedgenomics.biomedcentral.com/articles/10.1186/s12920-014-0064-y#Sec11) genes, frequently mutated in normal exomes.
+- `publish_intermediates`: logical (whether to publish large intermediate files (BAM and CRAMs)to the output directory)
 
 
 Default reference file values supplied within the `nextflow.config` file can be overided by adding them to the params `.json` file. An example complete params file `tests/test_data/test_params.json` is supplied within this repo for demonstation.
@@ -79,7 +80,7 @@ module load /software/modules/ISG/singularity/3.11.4
 # Create a nextflow job that will spawn other jobs
 
 nextflow run 'https://gitlab.internal.sanger.ac.uk/DERMATLAS/analysis-methods/dermatlas_germlinepost_nf' \
--r 0.2.7 \
+-r 0.3.0 \
 -params-file $PARAMS_FILE \
 -profile farm22 
 ```
