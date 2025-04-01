@@ -8,7 +8,7 @@ nextflow_workflow {
 
         when {
         params {
-            load("$baseDir/tests/testdata/test_params.json")
+            load("${baseDir}/tests/testdata/test_params.json")
         }
         }
 

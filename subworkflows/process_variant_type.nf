@@ -2,7 +2,6 @@
 
 include { SELECT_VARIANTS;MARK_VARIANTS;FILTER_VARIANTS} from "../modules/gatk_variant_handling.nf"
 include { ANNOTATE_VARIANTS } from "../modules/vep_annotation.nf"
-include { CONVERT_TO_TSV } from "../modules/summarise_results.nf"
 
 workflow PROCESS_VARIANT_SET {
     take:
@@ -28,10 +27,8 @@ workflow PROCESS_VARIANT_SET {
                       species,
                       assembly,
                       db_version)
-                      
-    CONVERT_TO_TSV(ANNOTATE_VARIANTS.out.vep_annotation)
+
 
     emit:
-    publish_vars = CONVERT_TO_TSV.out.tsv_file 
     annotated_vars = ANNOTATE_VARIANTS.out.vep_annotation
 }

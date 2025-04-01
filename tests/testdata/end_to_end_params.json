@@ -21,6 +21,9 @@
     "species": "homo_sapiens",
     "db_version": "103",
     "assembly": "GRCh38",
-    "outdir": "results"
+    "outdir": "results",
+    "alternative_transcripts": "/lustre/scratch124/resources/dermatlas/ensembl/dermatlas_noncanonical_transcripts_ens103.v2.tsv"
+
+
 
 }

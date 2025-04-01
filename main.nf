@@ -5,28 +5,39 @@ include { GENERATE_GENOMICS_DB } from "./modules/generate_genomicsdb.nf"
 include { CREATE_DICT } from "./modules/generate_gatk_ref.nf"
 include { GATK_GVCF_PER_CHROM; MERGE_COHORT_VCF;INDEX_COHORT_VCF} from "./modules/gatk_variant_handling.nf"
 include { PROCESS_VARIANT_SET as PROCESS_SNPS; PROCESS_VARIANT_SET as PROCESS_INDELS } from "./subworkflows/process_variant_type.nf"
-include { NF_DEEPVARIANT } from "./subworkflows/hgi_nfdeepvariant.nf"
-include { GERMLINE } from "./subworkflows/germline.nf"
-include { POSTPROCESS_ONLY } from "./subworkflows/postprocess_only.nf"
+include { GERMLINE } from "./subworkflows/call_variants.nf"
+include { SETUP_CALLING_INPUTS } from "./subworkflows/setup_calling_inputs.nf"
+include { GERMLINE_COHORT_ANALYSIS } from "./subworkflows/summarise_germline_analysis.nf"
 
-include { COMBINED_SUMMARY;CONVERT_TO_MAF } from "./modules/summarise_results.nf"
+
 
 workflow DERMATLAS_GERMLINE {
     main:
+    // Setup parameters and variants
+    log.info("Checking baitset path: ${params.baitset}")
     baitset = file(params.baitset, checkIfExists: true)
+    log.info("Checking refgenome path: ${params.reference_genome}")
     reference_genome = file(params.reference_genome, checkIfExists: true)
+    log.info("Checking VEP cache path: ${params.vep_cache}")
     vep_cache = file(params.vep_cache, checkIfExists: true)
-    
+    log.info("Checking alt transcript path: ${params.alternative_transcripts}")
+    alternative_transcripts = file(params.alternative_transcripts, checkIfExists: true)
+
+    nih_genes = file(params.nih_germline_resource, checkIfExists: true)
+    cgc_genes = file(params.cancer_gene_census_resource, checkIfExists: true)
+    flags = file(params.flag_genes, checkIfExists: true)
+
+
     custom_files = Channel.of(params.custom_files.split(';'))
     .map(it -> file(it, checkIfExists: true))
     .collect()
+    log.info("Custom files exist")
     custom_args = Channel.of(params.custom_args.split(';'))
     .collect()
     .map { '--custom ' + it.join(' --custom ') }
-
-
+    log.info("Checking chrom list path: ${params.chrom_list}")
     
-    chroms = Channel.fromPath(params.chrom_list)
+    chroms = Channel.fromPath(params.chrom_list, checkIfExists: true)
     | splitCsv(sep:"\t")
     | collect(flat: true)
     chrom_idx = chroms.flatten().toList().map { it.withIndex() }
@@ -34,23 +45,25 @@ workflow DERMATLAS_GERMLINE {
     CREATE_DICT(reference_genome)
     
     if (params.post_process_only){
-        POSTPROCESS_ONLY()
-        sample_map = POSTPROCESS_ONLY.out.sample_map
-        db_ch = GENERATE_GENOMICS_DB(sample_map, chroms, POSTPROCESS_ONLY.out.vcf_ch)
+        SETUP_CALLING_INPUTS()
+        sample_map = SETUP_CALLING_INPUTS.out.sample_map
+        db_ch = GENERATE_GENOMICS_DB(sample_map, chroms, SETUP_CALLING_INPUTS.out.vcf_ch)
     } else {
         GERMLINE(CREATE_DICT.out.ref, baitset)
         sample_map = GERMLINE.out.sample_map
         db_ch = GENERATE_GENOMICS_DB(sample_map, chroms, GERMLINE.out.vcf_ch)
     }
 
+    log.info("Setups complete")
     GATK_GVCF_PER_CHROM(db_ch, 
                     CREATE_DICT.out.ref, 
                     chrom_idx)
+
     gvcf_chrom_files = GATK_GVCF_PER_CHROM.out.chrom_vcf
     | toSortedList { item -> item[0][1]}
     | transpose()
     | last()
-    | map {it -> tuple([study_id: params.study_id], it)}
+    | map {it -> [[study_id: params.study_id], it]}
     
     MERGE_COHORT_VCF(gvcf_chrom_files)
     INDEX_COHORT_VCF(MERGE_COHORT_VCF.out.cohort_vcf)
@@ -83,24 +96,27 @@ workflow DERMATLAS_GERMLINE {
                    params.db_version)
     
     if (params.summarise_results){
-    nih_germline_resource = file(params.nih_germline_resource, checkIfExists: true)
-    cancer_gene_census_resource = file(params.cancer_gene_census_resource, checkIfExists: true)
-    flag_genes =  file(params.flag_genes, checkIfExists: true)
-    COMBINED_SUMMARY(PROCESS_SNPS.out.publish_vars,
-                     PROCESS_INDELS.out.publish_vars,
-                    nih_germline_resource,
-                    cancer_gene_census_resource,
-                    flag_genes)
-    CONVERT_TO_MAF(COMBINED_SUMMARY.out.outfile,
-                        nih_germline_resource,
-                        cancer_gene_census_resource)
-    }
-    emit:
-    indel_file = PROCESS_INDELS.out.annotated_vars
-    snp_file = PROCESS_SNPS.out.annotated_vars
+
+    snp_conversion_ch = PROCESS_SNPS.out.annotated_vars
+    indel_conversion_ch = PROCESS_INDELS.out.annotated_vars
     
-    summary_files = COMBINED_SUMMARY.out.outfile
-    cohort_maf = CONVERT_TO_MAF.out.maf
+    GERMLINE_COHORT_ANALYSIS(snp_conversion_ch, 
+                             indel_conversion_ch,
+                             sample_map,
+                             params.assembly,
+                             params.filter_col,
+                             nih_genes,
+                             cgc_genes,
+                             flags,
+                             alternative_transcripts)
+    
+    }
+    emit: 
+        indel_file = PROCESS_INDELS.out.annotated_vars
+        snp_file = PROCESS_SNPS.out.annotated_vars
+        results = GERMLINE_COHORT_ANALYSIS.out.results
+
+
 
 }
 
