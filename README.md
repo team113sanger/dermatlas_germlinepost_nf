@@ -25,16 +25,18 @@ In brief, the pipeline takes a set samples that have been pre-processed by the D
 Inputs will depend on whether you are runnning in post-processing mode or end-to-end. Inputs can also be split into those which are cohort dependent and independent.
 
 ### Cohort-dependent variables
-- `study_id`: Prefix number for the cohort
+- `study_id`: prefix string to be applied to cohort-level summary files
 - `outdir`: path to the where you would like the pipeline to output results
-- `post_process_only`: logical determining whether to run post processing or the end-to-end germline analysis. 
+- `post_process_only`: logical determining whether to run post processing (VCF-> oncoplot) or the end-to-end (BAM -> oncoplot) germline analysis. 
 
 **If true, the following inputs are required:**
-- `geno_vcf`: a path to a set of .vcf files in a project directory. Note: the pipeline assumes that corresponding index files have been pre-generated and are co-located with vcf and you should use a ** glob match to recursively collect all bamfiles in the directory
-- `sample_map`: path to a tab delimited file containing Sample IDs and the vcf files that they correspond 
+- `geno_vcf`: a path to a set of .vcf files in a project directory. **Note: the pipeline assumes that corresponding index files have been pre-generated and are co-located with vcf and you should use a ** glob match to recursively collect all bamfiles in the directory**
+- `sample_map`: path to a tab delimited file containing Sample IDs and the vcf files that they correspond to. Please see `tests/testdata/sample_map.tsv` for an example
 
 **If false, the following inputs are required:**
-- `tsv_file`: a manifest containing sample ids, associated bam files and their indexes. 
+- `tsv_file`: a manifest containing sample ids, associated bam files and their indexes. Please see `tests/testdata/manifest.tsv` for an example
+
+
 
 ### Cohort-independent variables
 Reference files that are reused across pipeline executions have been placed within the pipeline's default `nextflow.config` file to simplify configuration. These can be ommited from setup. Behind the scences though, the following reference files are required for a run: 
@@ -53,13 +55,14 @@ Reference files that are reused across pipeline executions have been placed with
 - `cancer_gene_census_resoruce`: Cancer gene Census list of genes form COSMIC v97 
 - `flag_genes`: path to a list of [FLAG](https://bmcmedgenomics.biomedcentral.com/articles/10.1186/s12920-014-0064-y#Sec11) genes, frequently mutated in normal exomes.
 - `publish_intermediates`: logical (whether to publish large intermediate files (BAM and CRAMs)to the output directory)
+- `alternative_transcripts`: path to a file containing Ensembl transcripts where we wish to modify the canonical transcript for accurate variant reporting.
 
 
-Default reference file values supplied within the `nextflow.config` file can be overided by adding them to the params `.json` file. An example complete params file `tests/test_data/test_params.json` is supplied within this repo for demonstation.
+Default values for reference files are supplied within the `nextflow.config` file and can be overided by adding them to the params `.json` file. An example complete params file `tests/test_data/test_params.json` is supplied within this repository for demonstation.
 
 ## Usage 
 
-The recommended way to launch this pipeline is using a wrapper script (e.g. `bsub < my_wrapper.sh`) that submits nextflow as a job and records the version (**e.g.** `-r 0.1.1`)  and the `.json` parameter file supplied for a run.
+The recommended way to launch this pipeline on Sangers HPC is using a wrapper script (e.g. `bsub < my_wrapper.sh`) that submits nextflow as a job and records the version (**e.g.** `-r 0.1.1`)  and the `.json` parameter file supplied for a run.
 
 An example wrapper script:
 ```
