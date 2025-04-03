@@ -1,6 +1,7 @@
-workflow POSTPROCESS_ONLY {
+workflow SETUP_CALLING_INPUTS {
 
     main:
+    log.info("Checking Sample map path: ${params.sample_map}")
     sample_map = file(params.sample_map, checkIfExists: true)
 
     Channel.fromPath(sample_map)
@@ -10,7 +11,7 @@ workflow POSTPROCESS_ONLY {
     [ meta.sample, basename ]}
     .collectFile{ meta -> ["sample_base.txt", "${meta[0]}\t${meta[1]}\n"]}
     | set {base_map}
-    
+    log.info("Checking GVCF path: ${params.geno_vcf}")
     Channel.fromPath(params.geno_vcf)
     .map { file -> 
             index = file + ".tbi"

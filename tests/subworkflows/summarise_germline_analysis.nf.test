@@ -1,0 +1,38 @@
+nextflow_workflow {
+
+    name "Test Workflow GERMLINE_COHORT_ANALYSIS"
+    script "subworkflows/summarise_germline_analysis.nf"
+    workflow "GERMLINE_COHORT_ANALYSIS"
+
+    test("Should run without failures") {
+
+        when {
+        params {
+            load("$baseDir/tests/testdata/test_params.json")
+        }
+            workflow {
+                """
+                input[0] =  Channel.of(tuple([study_id: "TBC"],
+                            file("/lustre/scratch124/nf-test/germline/6676_cohort_raw_snps.marked.target.pass.vep.vcf.gz"), 
+                            file("/lustre/scratch124/nf-test/germline/6676_cohort_raw_snps.marked.target.pass.vep.vcf.gz.tbi")))
+                input[1] =  Channel.of(tuple([study_id: "TBC"],
+                            file("/lustre/scratch124/nf-test/germline/6676_cohort_indel_raw.marked.target.pass.vep.vcf.gz"),
+                            file("/lustre/scratch124/nf-test/germline/6676_cohort_indel_raw.marked.target.pass.vep.vcf.gz.tbi")))
+                input[2] =  Channel.of(file("${baseDir}/tests/testdata/sample_map.txt"))
+                input[3] = "GRCh38"
+                input[4] = "gnomAD_AF"
+                input[5] = file("/lustre/scratch124/resources/dermatlas/germline/Cancer_national_genomic_test_directory_v7.2_June_2023_gene_smv_summary.tsv")
+                input[6] = file("/lustre/scratch124/resources/dermatlas/COSMIC/cancer_gene_census.v97.genes.tsv")
+                input[7] = file("/lustre/scratch124/resources/dermatlas/germline/FLAG_genes_maftools.tsv")
+                input[8] = file("/lustre/scratch124/resources/dermatlas/ensembl/dermatlas_noncanonical_transcripts_ens103.tsv")
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+        }
+
+    }
+
+}

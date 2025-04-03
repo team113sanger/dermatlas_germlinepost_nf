@@ -1,8 +1,5 @@
 {
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-    // "dockerComposeFile": [
-	// 	"../docker-compose.yml"
-	// ],
     "features": {
         "ghcr.io/robsyme/features/nextflow:1": {},
         "ghcr.io/robsyme/features/nf-test:1": {},
