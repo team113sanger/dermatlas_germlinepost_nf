@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.0] - 2024-04-01
 ### Added 
-- Refactor to use the new Germline post-processing steps (unified MAF generation with somatics, updated oncoplots).
+- Refactor to use the new Germline post-processing steps (unified MAF generation with somatic variant pipeline, updated oncoplots).
 - Make publication of intermediate files optional with `publish_intermediates` parameter.
 
 ### Fixed

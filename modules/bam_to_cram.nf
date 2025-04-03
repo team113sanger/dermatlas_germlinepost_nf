@@ -1,8 +1,10 @@
 process bam_to_cram {
     tag "$sample"
+    if (params.publish_intermediates){
     publishDir path: "${params.outdir}/bam_to_cram/",
 	mode: "${params.publish_dir_mode}",
 	overwrite: "true"
+    }
 
     when:
     params.run_coord_sort_cram
