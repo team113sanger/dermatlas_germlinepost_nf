@@ -1,4 +1,5 @@
 process VCF_TO_MAF {
+    publishDir "${params.outdir}/vcf/Final_joint_call", mode: 'copy'
     container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/maf:0.6.2"
     input: 
         tuple val(meta), path(STUDY_COHORT_SNP_VCFS), path(snp_index)
