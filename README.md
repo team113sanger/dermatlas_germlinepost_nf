@@ -83,7 +83,7 @@ module load /software/modules/ISG/singularity/3.11.4
 # Create a nextflow job that will spawn other jobs
 
 nextflow run 'https://gitlab.internal.sanger.ac.uk/DERMATLAS/analysis-methods/dermatlas_germlinepost_nf' \
--r 0.3.0 \
+-r 0.3.1 \
 -params-file $PARAMS_FILE \
 -profile farm22 
 ```
