@@ -2,11 +2,10 @@
 process sort_cram {
     container "quay.io/biocontainers/sambamba:0.6.5--0"
     tag "$sample"
-    if (params.publish_intermediates){
     publishDir path: "${params.outdir}/sort_cram/",
-	mode: "${params.publish_dir_mode}",
-	overwrite: "true"
-    }
+        mode: "${params.publish_dir_mode}",
+        overwrite: "true",
+        enabled: params.publish_intermediates
 
     input:
     tuple val(sample), path(cram_file), path(cram_file_index)

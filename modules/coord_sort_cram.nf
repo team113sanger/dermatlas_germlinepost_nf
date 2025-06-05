@@ -1,13 +1,10 @@
 process coord_sort_cram {
     tag "$sample"
-    if (params.publish_intermediates){
+    container "quay.io/biocontainers/samtools:1.17--h00cdaf9_0"
     publishDir path: "${params.outdir}/coord_sort_cram/",
-	mode: "${params.publish_dir_mode}",
-	overwrite: "true"
-    }
-    
-    when:
-    params.run_coord_sort_cram
+        mode: "${params.publish_dir_mode}",
+        overwrite: "true",
+        enabled: params.publish_intermediates
      
     input:
     tuple val(sample), path(cram_file_sorted_dups)

@@ -2,14 +2,10 @@ process markDuplicates {
     tag "$sample"
     container "broadinstitute/gatk:4.2.6.1"
     label "gatk_steps"
-    if (params.publish_intermediates){
     publishDir path: "${params.outdir}/markDuplicates/",
-	mode: "${params.publish_dir_mode}",
-	overwrite: "true"
-    }
-
-    when:
-    params.run_markDuplicates
+        mode: "${params.publish_dir_mode}",
+        overwrite: "true",
+        enabled: params.publish_intermediates
      
     input:
     tuple val(sample), path(cram_file_sorted)

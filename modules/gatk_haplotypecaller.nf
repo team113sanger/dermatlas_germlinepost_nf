@@ -3,12 +3,10 @@ process gatk_haplotypecaller {
     container "broadinstitute/gatk:4.2.6.1"
     label "gatk_steps"
     publishDir path: "${params.outdir}/gatk_haplotypecaller/",
-	mode: "${params.publish_dir_mode}",
-	overwrite: "true",
-	pattern: "*gatk.g.vcf.gz*"
-    
-    when:
-    params.run_haplotypecaller
+        mode: "${params.publish_dir_mode}",
+        overwrite: "true",
+        pattern: "*gatk.g.vcf.gz*"
+
      
     input:
     tuple val(meta), path(cram_file_sorted_dups_coord), path(cram_file_sorted_dups_coord_index)

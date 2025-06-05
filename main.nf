@@ -29,7 +29,7 @@ workflow DERMATLAS_GERMLINE {
 
 
     custom_files = Channel.of(params.custom_files.split(';'))
-    .map(it -> file(it, checkIfExists: true))
+    .map{ it -> file(it, checkIfExists: true) }
     .collect()
     log.info("Custom files exist")
     custom_args = Channel.of(params.custom_args.split(';'))

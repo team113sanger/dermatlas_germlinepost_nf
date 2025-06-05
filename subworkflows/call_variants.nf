@@ -12,7 +12,7 @@ workflow GERMLINE {
 
     NF_DEEPVARIANT(channel_inputs_bams, ref_genome, baitset)
     NF_DEEPVARIANT.out.haplos.collectFile(name: "tmp_sample_map.txt"){
-        meta, vcf, index ->
+        meta, vcf, _index ->
     ["tmp_sample_map.txt", "${meta}\t${vcf.baseName}.gz\n"]
     }
     .set{ sample_map }
@@ -20,12 +20,12 @@ workflow GERMLINE {
     NF_DEEPVARIANT.out.haplos.collectFile(
         name: "sample_map.txt",
         storeDir: "${params.outdir}"){
-        meta, vcf, index ->
+        meta, vcf, _index ->
     ["sample_map.txt", "${meta}\t${params.outdir}/gatk_haplotypecaller/${vcf.baseName}.gz\n"]
     }
     
     NF_DEEPVARIANT.out.haplos
-    .map{ sample_id, file, index -> tuple(file, index)}
+    .map{ _sample_id, file, index -> tuple(file, index)}
     .collect()
     .map { file_list -> tuple([study_id: params.study_id], file_list)}
     .set{ vcf_ch }

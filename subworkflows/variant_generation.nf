@@ -12,11 +12,19 @@ workflow NF_DEEPVARIANT {
     baitset
 
     main:
+        if (params.run_coord_sort_cram){
         sort_cram(channel_inputs_bams)
+        }
+        if (  params.run_markDuplicates){
         markDuplicates(sort_cram.out.sorted_sample_cram, ref_genome)
+        }
+        if (params.run_coord_sort_cram){
         coord_sort_cram(markDuplicates.out.markdup_sample_cram)
         bam_to_cram(coord_sort_cram.out.markdup_sample_cram_crai, ref_genome)
+        }
+        if ( params.run_haplotypecaller ) {
         gatk_haplotypecaller(coord_sort_cram.out.markdup_sample_cram_crai, ref_genome, baitset)
+        }
 
     
     emit:

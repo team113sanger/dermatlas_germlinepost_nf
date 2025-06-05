@@ -17,7 +17,7 @@ workflow GERMLINE_COHORT_ANALYSIS {
     main:
     snp_conversion_ch
     .concat(indel_conversion_ch)
-    .map { meta, file, index -> file.baseName + ".gz" }
+    .map { _meta, file, _index -> file.baseName + ".gz" }
     .collectFile(name: 'vcf_list.txt', newLine: true)
     .set { vcf_list }
 

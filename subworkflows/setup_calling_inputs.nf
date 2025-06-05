@@ -14,7 +14,7 @@ workflow SETUP_CALLING_INPUTS {
     log.info("Checking GVCF path: ${params.geno_vcf}")
     Channel.fromPath(params.geno_vcf)
     .map { file -> 
-            index = file + ".tbi"
+            def index = file + ".tbi"
             tuple(file, index)}
      .collect()
      .map { file_list -> tuple([study_id: params.study_id], file_list)}

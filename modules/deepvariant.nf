@@ -1,16 +1,13 @@
 process deepvariant {
     tag "$sample"
     publishDir "${params.outdir}/deepvariant/gvcf",
-	mode: "${params.publish_dir_mode}",
-	overwrite: true,
-	pattern: "*dv.g.vcf.gz*"
+        mode: "${params.publish_dir_mode}",
+        overwrite: true,
+        pattern: "*dv.g.vcf.gz*"
     publishDir "${params.outdir}/deepvariant/vcf",
-	mode: "${params.publish_dir_mode}",
-	overwrite: true,
-	pattern: "*dv.vcf.gz*"
-
-    when:
-    params.run_deepvariant
+        mode: "${params.publish_dir_mode}",
+        overwrite: true,
+        pattern: "*dv.vcf.gz*"
      
     input:
     tuple val(sample), path(cram_file_sorted_dups_coord), path(cram_file_sorted_dups_coord_index)
