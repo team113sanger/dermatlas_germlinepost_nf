@@ -47,7 +47,7 @@ Reference files that are reused across pipeline executions have been placed with
 - `custom_files`: path to a set of annotation file to use in VEP (seperated by semi-colons)
 - `custom_args`: path to a set of arguments to use with each custom file in VEP (seperated by semi-colons)
 - `species`: VEP parameter, specifying the species being analysed (string)
-- `db_name`: VEP parameter, specifying the ensembl data package version and corresponding db
+- `db_version`: VEP parameter, specifying the ensembl data package version and corresponding db
 - `assembly`: VEP parameter, specifying the reference genome build for the run.
 - `summarise_results`: logical (whether to apply Dermatlas post processing into tables and figure)
 **If true, the following inputs are required:**
