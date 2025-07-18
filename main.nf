@@ -29,13 +29,13 @@ workflow DERMATLAS_GERMLINE {
 
 
     custom_files = Channel.of(params.custom_files.split(';'))
-    .map(it -> file(it, checkIfExists: true))
-    .collect()
+        .map(it -> file(it, checkIfExists: true))
+        .collect()
     log.info("Custom files exist")
     
     custom_args = Channel.of(params.custom_args.split(';'))
-    .collect()
-    .map { '--custom ' + it.join(' --custom ') }
+        .collect()
+        .map { '--custom ' + it.join(' --custom ') }
     
     log.info("Checking chrom list path: ${params.chrom_list}")
     
@@ -50,8 +50,10 @@ workflow DERMATLAS_GERMLINE {
     
     // Create indexed chromosome channel for GATK_GVCF_PER_CHROM
     chrom_idx = chroms_sorted
+        .map { chrom_list ->
+            chrom_list.withIndex().collect { chrom, idx -> [chrom, idx] }
+        }
         .flatten()
-        .map.withIndex() { chrom, idx -> [chrom, idx] }
 
     CREATE_DICT(reference_genome)
     
