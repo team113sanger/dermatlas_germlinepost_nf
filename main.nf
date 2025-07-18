@@ -40,7 +40,17 @@ workflow DERMATLAS_GERMLINE {
     chroms = Channel.fromPath(params.chrom_list, checkIfExists: true)
     | splitCsv(sep:"\t")
     | collect(flat: true)
-    chrom_idx = chroms.flatten().toList().map { it.withIndex() }
+
+    chroms_list = Channel.fromPath(params.chrom_list, checkIfExists: true)
+    .splitCsv(sep:"\t")
+    .flatten()
+    .toSortedList()
+
+    chrom_idx = chroms_list
+    .flatten()
+    .toSortedList()
+    .flatten()
+    .map { it.withIndex() }
 
     CREATE_DICT(reference_genome)
     
@@ -60,10 +70,11 @@ workflow DERMATLAS_GERMLINE {
                     chrom_idx)
 
     gvcf_chrom_files = GATK_GVCF_PER_CHROM.out.chrom_vcf
-    | toSortedList { item -> item[0][1]}
-    | transpose()
-    | last()
-    | map {it -> [[study_id: params.study_id], it]}
+    .toSortedList { a, b -> a[0][1] <=> b[0][1] }
+    .map { sorted_list -> 
+        def vcf_files = sorted_list.collect { it[1] }
+        return [[study_id: params.study_id], vcf_files]
+    }
     
     MERGE_COHORT_VCF(gvcf_chrom_files)
     INDEX_COHORT_VCF(MERGE_COHORT_VCF.out.cohort_vcf)
