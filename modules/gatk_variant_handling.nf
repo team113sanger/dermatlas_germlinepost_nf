@@ -14,21 +14,18 @@ process GATK_GVCF_PER_CHROM {
 
     script:
     log.info "DEBUG: CHR received: $CHR (type: ${CHR.getClass()})"
-    def chrom = CHR
-    log.info "DEBUG: chrom assigned: $chrom"
     """
     gatk --java-options "-Xmx4g -Xms4g" GenotypeGVCFs \
        -R "${ref_genome_file}" \
        -V gendb://${GENDB} \
-       -L ${chrom} \
-       -O ${chrom}.vcf.gz \
+       -L ${CHR} \
+       -O ${CHR}.vcf.gz \
        --genomicsdb-shared-posixfs-optimizations true 
     """
 
     stub:
-    def chrom = CHR
     """
-    echo stub > ${chrom}.vcf.gz
+    echo stub > ${CHR}.vcf.gz
     """
 
 }
