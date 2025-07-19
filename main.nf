@@ -50,6 +50,9 @@ workflow DERMATLAS_GERMLINE {
     
     // Create indexed chromosome channel for GATK_GVCF_PER_CHROM
     chrom_idx = chroms_sorted
+        .flatten()
+        .map { chrom -> [chrom] }
+        .toList()
         .map { chrom_list ->
             chrom_list.withIndex().collect { chrom, idx -> [chrom, idx] }
         }
