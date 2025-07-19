@@ -1,6 +1,6 @@
 
 process GATK_GVCF_PER_CHROM {
-    tag {CHR[0]}
+    tag {CHR}
     label "gatk_steps"
     container "broadinstitute/gatk:4.2.6.1"
     publishDir "${params.outdir}/Raw_joint_call", mode: "copy"
@@ -13,7 +13,9 @@ process GATK_GVCF_PER_CHROM {
     tuple val(CHR), path("*vcf.gz"), emit: chrom_vcf
 
     script:
-    def chrom = CHR[0]
+    log.info "DEBUG: CHR received: $CHR (type: ${CHR.getClass()})"
+    def chrom = CHR
+    log.info "DEBUG: chrom assigned: $chrom"
     """
     gatk --java-options "-Xmx4g -Xms4g" GenotypeGVCFs \
        -R "${ref_genome_file}" \
@@ -24,7 +26,7 @@ process GATK_GVCF_PER_CHROM {
     """
 
     stub:
-    def chrom = CHR[0]
+    def chrom = CHR
     """
     echo stub > ${chrom}.vcf.gz
     """

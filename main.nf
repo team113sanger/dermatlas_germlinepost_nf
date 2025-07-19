@@ -48,15 +48,11 @@ workflow DERMATLAS_GERMLINE {
     // Create chromosome channel for GENERATE_GENOMICS_DB
     chroms = chroms_sorted.flatten().collect(flat: true)
     
-    // Create indexed chromosome channel for GATK_GVCF_PER_CHROM
-    chrom_idx = chroms_sorted
-        .flatten()
-        .map { chrom -> [chrom] }
-        .toList()
-        .map { chrom_list ->
-            chrom_list.withIndex().collect { chrom, idx -> [chrom, idx] }
-        }
-        .flatten()
+    // Create indexed chromosome channel for GATK_GVCF_PER_CHROM  
+    chrom_idx = chroms_sorted.flatten()
+    
+    // Debug: Log what's in the chromosome channel
+    chrom_idx.view { "DEBUG: chrom_idx contains: $it (type: ${it.getClass()})" }
 
     CREATE_DICT(reference_genome)
     
@@ -77,7 +73,7 @@ workflow DERMATLAS_GERMLINE {
 
     // Deterministic collection and sorting of VCF files
     gvcf_chrom_files = GATK_GVCF_PER_CHROM.out.chrom_vcf
-        .toSortedList { a, b -> a[0][1] <=> b[0][1] }
+        .collect()
         .map { sorted_list -> 
             def vcf_files = sorted_list.collect { it[1] }
             return [[study_id: params.study_id], vcf_files]
