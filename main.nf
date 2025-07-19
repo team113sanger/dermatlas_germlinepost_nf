@@ -50,9 +50,6 @@ workflow DERMATLAS_GERMLINE {
     
     // Create indexed chromosome channel for GATK_GVCF_PER_CHROM  
     chrom_idx = chroms_sorted.flatten()
-    
-    // Debug: Log what's in the chromosome channel
-    chrom_idx.view { "DEBUG: chrom_idx contains: $it (type: ${it.getClass()})" }
 
     CREATE_DICT(reference_genome)
     
