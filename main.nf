@@ -68,16 +68,21 @@ workflow DERMATLAS_GERMLINE {
                     CREATE_DICT.out.ref, 
                     chrom_idx)
 
-    // Deterministic collection and sorting of VCF files in genomic order
+    // Read chromosome order from file for proper genomic sorting
+    chrom_order_list = Channel.fromPath(params.chrom_list, checkIfExists: true)
+        .splitCsv(sep:"\t")
+        .flatten()
+        .toList()
+        
+    // Deterministic collection and sorting of VCF files in genomic order  
     gvcf_chrom_files = GATK_GVCF_PER_CHROM.out.chrom_vcf
         .collect()
-        .map { sorted_list -> 
-            // Sort by chromosome order as defined in the chromosome file
-            def chrom_order = chroms_sorted.flatten().collect(flat: true).val
-            def sorted_chroms = sorted_list.sort { a, b -> 
+        .combine(chrom_order_list)
+        .map { vcf_tuples, chrom_order -> 
+            def sorted_vcfs = vcf_tuples.sort { a, b -> 
                 chrom_order.indexOf(a[0]) <=> chrom_order.indexOf(b[0])
             }
-            def vcf_files = sorted_chroms.collect { it[1] }
+            def vcf_files = sorted_vcfs.collect { it[1] }
             return [[study_id: params.study_id], vcf_files]
         }
     
