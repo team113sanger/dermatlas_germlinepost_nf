@@ -2,6 +2,7 @@
 process GATK_GVCF_PER_CHROM {
     tag {CHR[0]}
     label "gatk_steps"
+    cache false
     container "broadinstitute/gatk:4.2.6.1"
     publishDir "${params.outdir}/Raw_joint_call", mode: "copy"
     input: 
