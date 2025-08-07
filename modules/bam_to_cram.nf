@@ -1,4 +1,4 @@
-process bam_to_cram {
+process BAM_TO_CRAM {
     tag "$sample"
     if (params.publish_intermediates){
     publishDir path: "${params.outdir}/bam_to_cram/",

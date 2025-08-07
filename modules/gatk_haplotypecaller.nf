@@ -1,4 +1,4 @@
-process gatk_haplotypecaller {
+process GATK_HAPLOTYPECALLER {
     tag "$meta"
     container "broadinstitute/gatk:4.2.6.1"
     label "gatk_steps"

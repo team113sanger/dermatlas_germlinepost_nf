@@ -1,5 +1,5 @@
 
-process sort_cram {
+process SORT_CRAM {
     tag "$sample"
     if (params.publish_intermediates){
     publishDir path: "${params.outdir}/sort_cram/",

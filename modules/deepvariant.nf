@@ -1,4 +1,4 @@
-process deepvariant {
+process DEEPVARIANT {
     tag "$sample"
     publishDir "${params.outdir}/deepvariant/gvcf",
 	mode: "${params.publish_dir_mode}",
