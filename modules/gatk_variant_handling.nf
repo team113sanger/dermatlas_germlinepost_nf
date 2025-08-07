@@ -165,7 +165,7 @@ process FILTER_VARIANTS {
     output:
     tuple val(meta), path("*.target.pass.vcf.gz"), path("*.target.pass.vcf.gz.tbi"), emit: filtered_variants
     script:
-    def clean_suffix = meta.suffix.replaceAll('_raw', '').replaceAll('raw_', '')
+    def clean_suffix = meta.suffix.replaceAll('_raw_', '_').replaceAll('_raw\$', '')
     """
     bcftools view -f PASS ${marked_genotpye_vcf} \
     -Oz -o "${meta.study_id}${clean_suffix}.marked.target.pass.vcf.gz" \
