@@ -21,3 +21,5 @@ nextflow run 'https://github.com/team113sanger/dermatlas_germlinepost_nf' \
 -r "${REVISION}" \
 -c "${CONFIG}" \
 -profile farm22
+
+chmod -R ug+rw ${PROJECT_DIR}/results/germline
