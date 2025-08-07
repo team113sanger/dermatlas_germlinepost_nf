@@ -15,7 +15,7 @@ process SORT_CRAM {
 
     script:
     """ 
-    sambamba sort ${cram_file} -p -m ${task.memory.toGiga}GB -n \
+    sambamba sort ${cram_file} -p -m ${task.memory.toGiga()}GB -n \
     --tmpdir ./tmp /dev/stdin -o ${cram_file}.sorted \
    
     """
