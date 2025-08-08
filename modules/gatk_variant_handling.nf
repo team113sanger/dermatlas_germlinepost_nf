@@ -145,7 +145,7 @@ process MARK_VARIANTS {
     -V ${raw_genotpye_vcf} \
     -L ${baitset} \
      ${filter_to_apply} \
-    -O "${meta.study_id}${meta.clean_suffix}.marked.vcf.gz"
+    -O "${meta.study_id}${clean_suffix}.marked.vcf.gz"
     """
     stub:
     """
@@ -169,9 +169,9 @@ process FILTER_VARIANTS {
     def clean_suffix = meta.suffix.replaceAll('_raw_', '_').replaceAll('_raw', '')
     """
     bcftools view -f PASS ${marked_genotpye_vcf} \
-    -Oz -o "${meta.study_id}${meta.clean_suffix}.marked.target.pass.vcf.gz" \
+    -Oz -o "${meta.study_id}${clean_suffix}.marked.target.pass.vcf.gz" \
     -T ${baitset} 
-    tabix -p vcf "${meta.study_id}${meta.clean_suffix}.marked.target.pass.vcf.gz"
+    tabix -p vcf "${meta.study_id}${clean_suffix}.marked.target.pass.vcf.gz"
     """
     stub:
     """
