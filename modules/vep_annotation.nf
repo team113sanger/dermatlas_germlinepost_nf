@@ -1,7 +1,7 @@
 
 
 process ANNOTATE_VARIANTS {
-    publishDir "${params.outdir}/Final_joint_call", mode: "copy"
+    publishDir "${params.outdir}/vcf/Final_joint_call", mode: "copy"
 
     input:
     tuple val(meta), path(vcf_file), path(vcf_index)
