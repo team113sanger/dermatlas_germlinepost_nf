@@ -166,12 +166,12 @@ process FILTER_VARIANTS {
     output:
     tuple val(meta), path("*.target.pass.vcf.gz"), path("*.target.pass.vcf.gz.tbi"), emit: filtered_variants
     script:
-    def clean_suffix = meta.suffix.replaceAll('_raw_', '_').replaceAll('_raw\$', '')
+    def clean_suffix = meta.suffix.replaceAll('_raw_', '_').replaceAll('_raw', '')
     """
     bcftools view -f PASS ${marked_genotpye_vcf} \
-    -Oz -o "${meta.study_id}${clean_suffix}.marked.target.pass.vcf.gz" \
+    -Oz -o "${meta.study_id}${meta.clean_suffix}.marked.target.pass.vcf.gz" \
     -T ${baitset} 
-    tabix -p vcf "${meta.study_id}${clean_suffix}.marked.target.pass.vcf.gz"
+    tabix -p vcf "${meta.study_id}${meta.clean_suffix}.marked.target.pass.vcf.gz"
     """
     stub:
     """
