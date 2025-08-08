@@ -119,7 +119,7 @@ process MARK_VARIANTS {
     tuple val(meta), path("*marked.vcf.gz"), path("*marked.vcf.gz.tbi"), emit: marked_variants
     
     script:
-    def clean_suffix = meta.suffix.replaceAll('_raw_', '_').replaceAll('_raw\$', '')
+    def clean_suffix = meta.suffix.replaceAll('_raw_', '_').replaceAll('_raw', '')
     def snp_filter  =  '-filter "QD < 2.0" --filter-name "QD2" ' +
                        '-filter "QUAL < 30.0" --filter-name "QUAL30" ' +
                        '-filter "SOR > 3.0" --filter-name "SOR3" ' +
