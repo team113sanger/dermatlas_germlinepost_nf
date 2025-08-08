@@ -7,7 +7,7 @@
 set -euo pipefail
  
 export CONFIG="${PROJECT_DIR}/commands/germline_variants.config"
-export REVISION="0.3.2"
+export REVISION="0.3.3"
  
  
 # Load module dependencies
