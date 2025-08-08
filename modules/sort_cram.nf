@@ -1,6 +1,5 @@
 
-process sort_cram {
-    container "quay.io/biocontainers/sambamba:0.6.5--0"
+process SORT_CRAM {
     tag "$sample"
     if (params.publish_intermediates){
     publishDir path: "${params.outdir}/sort_cram/",
@@ -16,7 +15,7 @@ process sort_cram {
 
     script:
     """ 
-    sambamba sort ${cram_file} -p -m 7GB -n \
+    sambamba sort ${cram_file} -p -m ${task.memory.toGiga()}GB -n \
     --tmpdir ./tmp /dev/stdin -o ${cram_file}.sorted \
    
     """

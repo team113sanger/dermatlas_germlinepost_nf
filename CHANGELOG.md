@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.3.3] - 2025-08-08
+### Changed 
+- Quality of life improvements. Correction of file names and locations to better mirror the manual pipeline.
+### Added
+- Added template assets for fetching by Dermanager.
+
 ## [0.3.2] - 2025-07-15
 ### Changed 
 - Altering paths and defaults for new Dermatlas resources dir 

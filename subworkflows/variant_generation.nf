@@ -1,9 +1,9 @@
-include { sort_cram } from "../modules/sort_cram.nf"
-include { markDuplicates } from "../modules/markDuplicates.nf"
-include { coord_sort_cram } from "../modules/coord_sort_cram.nf"
-include { bam_to_cram } from "../modules/bam_to_cram.nf"
-include { deepvariant } from "../modules/deepvariant.nf"
-include { gatk_haplotypecaller } from "../modules/gatk_haplotypecaller.nf"
+include { SORT_CRAM } from "../modules/sort_cram.nf"
+include { MARK_DUPLICATES } from "../modules/markDuplicates.nf"
+include { COORD_SORT_CRAM } from "../modules/coord_sort_cram.nf"
+include { BAM_TO_CRAM } from "../modules/bam_to_cram.nf"
+include { DEEPVARIANT } from "../modules/deepvariant.nf"
+include { GATK_HAPLOTYPECALLER } from "../modules/gatk_haplotypecaller.nf"
 
 workflow NF_DEEPVARIANT {
     take:
@@ -12,13 +12,13 @@ workflow NF_DEEPVARIANT {
     baitset
 
     main:
-        sort_cram(channel_inputs_bams)
-        markDuplicates(sort_cram.out.sorted_sample_cram, ref_genome)
-        coord_sort_cram(markDuplicates.out.markdup_sample_cram)
-        bam_to_cram(coord_sort_cram.out.markdup_sample_cram_crai, ref_genome)
-        gatk_haplotypecaller(coord_sort_cram.out.markdup_sample_cram_crai, ref_genome, baitset)
+        SORT_CRAM(channel_inputs_bams)
+        MARK_DUPLICATES(SORT_CRAM.out.sorted_sample_cram, ref_genome)
+        COORD_SORT_CRAM(MARK_DUPLICATES.out.markdup_sample_cram)
+        BAM_TO_CRAM(COORD_SORT_CRAM.out.markdup_sample_cram_crai, ref_genome)
+        GATK_HAPLOTYPECALLER(COORD_SORT_CRAM.out.markdup_sample_cram_crai, ref_genome, baitset)
 
     
     emit:
-    haplos = gatk_haplotypecaller.out
+    haplos = GATK_HAPLOTYPECALLER.out
 }

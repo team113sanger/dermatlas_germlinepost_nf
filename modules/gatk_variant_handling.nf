@@ -2,8 +2,9 @@
 process GATK_GVCF_PER_CHROM {
     tag {CHR[0]}
     label "gatk_steps"
+    cache false
     container "broadinstitute/gatk:4.2.6.1"
-    publishDir "${params.outdir}/Raw_joint_call", mode: "copy"
+    publishDir "${params.outdir}/vcf/Raw_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(GENDB)
     tuple path(ref_genome_file), path(ref_genome_dict), path(reference_idx)
@@ -34,7 +35,7 @@ process GATK_GVCF_PER_CHROM {
 process MERGE_COHORT_VCF {
     container "broadinstitute/gatk:4.2.6.1"
     label "gatk_steps"
-    publishDir "${params.outdir}/Raw_joint_call", mode: "copy"
+    publishDir "${params.outdir}/vcf/Raw_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(vcf_file_list)
 
@@ -54,7 +55,7 @@ process MERGE_COHORT_VCF {
 }
 
 process INDEX_COHORT_VCF {
-    publishDir "${params.outdir}/Raw_joint_call", mode: "copy"
+    publishDir "${params.outdir}/vcf/Raw_joint_call", mode: "copy"
     label "gatk_steps"
     container "broadinstitute/gatk:4.2.6.1"
 
@@ -81,7 +82,7 @@ process INDEX_COHORT_VCF {
 process SELECT_VARIANTS {
     container "broadinstitute/gatk:4.2.6.1"
     label "gatk_steps"
-    publishDir "${params.outdir}/Final_joint_call", mode: "copy"
+    publishDir "${params.outdir}/vcf/Final_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(raw_genotpye_vcf), path(raw_genotpye_index) 
 
@@ -109,7 +110,7 @@ process SELECT_VARIANTS {
 process MARK_VARIANTS {
     container "broadinstitute/gatk:4.2.6.1"
     label "gatk_steps"
-    publishDir "${params.outdir}/Final_joint_call", mode: "copy"
+    publishDir "${params.outdir}/vcf/Final_joint_call", mode: "copy"
     input: 
     tuple val(meta), path(raw_genotpye_vcf), path(raw_genotpye_index)
     path(baitset)
@@ -118,6 +119,7 @@ process MARK_VARIANTS {
     tuple val(meta), path("*marked.vcf.gz"), path("*marked.vcf.gz.tbi"), emit: marked_variants
     
     script:
+    def clean_suffix = meta.suffix.replaceAll('_raw_', '_').replaceAll('_raw', '')
     def snp_filter  =  '-filter "QD < 2.0" --filter-name "QD2" ' +
                        '-filter "QUAL < 30.0" --filter-name "QUAL30" ' +
                        '-filter "SOR > 3.0" --filter-name "SOR3" ' +
@@ -143,7 +145,7 @@ process MARK_VARIANTS {
     -V ${raw_genotpye_vcf} \
     -L ${baitset} \
      ${filter_to_apply} \
-    -O "${meta.study_id}${meta.suffix}.marked.vcf.gz"
+    -O "${meta.study_id}${clean_suffix}.marked.vcf.gz"
     """
     stub:
     """
@@ -155,7 +157,7 @@ process MARK_VARIANTS {
 
 
 process FILTER_VARIANTS {
-    publishDir "${params.outdir}/Final_joint_call", mode: "copy"
+    publishDir "${params.outdir}/vcf/Final_joint_call", mode: "copy"
     
     input: 
     tuple val(meta), path(marked_genotpye_vcf), path(marked_genotpye_index)
@@ -164,11 +166,12 @@ process FILTER_VARIANTS {
     output:
     tuple val(meta), path("*.target.pass.vcf.gz"), path("*.target.pass.vcf.gz.tbi"), emit: filtered_variants
     script:
+    def clean_suffix = meta.suffix.replaceAll('_raw_', '_').replaceAll('_raw', '')
     """
     bcftools view -f PASS ${marked_genotpye_vcf} \
-    -Oz -o "${meta.study_id}${meta.suffix}.marked.target.pass.vcf.gz" \
+    -Oz -o "${meta.study_id}${clean_suffix}.marked.target.pass.vcf.gz" \
     -T ${baitset} 
-    tabix -p vcf "${meta.study_id}${meta.suffix}.marked.target.pass.vcf.gz"
+    tabix -p vcf "${meta.study_id}${clean_suffix}.marked.target.pass.vcf.gz"
     """
     stub:
     """

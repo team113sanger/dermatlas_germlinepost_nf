@@ -1,4 +1,4 @@
-process markDuplicates {
+process MARK_DUPLICATES {
     tag "$sample"
     container "broadinstitute/gatk:4.2.6.1"
     label "gatk_steps"
