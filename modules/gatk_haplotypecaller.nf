@@ -30,7 +30,8 @@ process GATK_HAPLOTYPECALLER {
     -ERC GVCF \\
     -G StandardAnnotation \\
     -G StandardHCAnnotation \\
-    -G AS_StandardAnnotation
+    -G AS_StandardAnnotation \\
+    --max-mnp-distance 3
     """
     stub:
     """
