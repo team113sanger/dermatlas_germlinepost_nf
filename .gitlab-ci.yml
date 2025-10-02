@@ -70,3 +70,26 @@ secure-lustre-test:
     # MAIN
     #
     - nf-test test --verbose
+
+# Cache pip dependencies
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+# Variables
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+# Deploy documentation
+pages:
+  stage: deploy
+  image: python:3.12
+  script:
+    - pip install sphinx sphinx-rtd-theme sphinx-copybutton sphinx-tabs myst-parser
+    - cd documentation
+    - make html
+    - cd ..
+    - mv documentation/build/html public
+  pages:
+    publish: public
