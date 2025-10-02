@@ -2,39 +2,36 @@
 
 Germline variant calling and post-processing for DERMATLAS can be run mostly with a single nextflow pipeline in a largely "set-and-forget" manner to reproduce the manual steps detailed in [DERMATLAS - Germline calling with GATK - for WES - using Nextflow Tower](https://confluence.sanger.ac.uk/x/BJOeB). This document contains an overview of how to configure and run the pipeline. For a more detailed explanation of the pipeline, the inputs, steps and requirements for running can be found within the pipeline project [README](https://gitlab.internal.sanger.ac.uk/DERMATLAS/analysis-methods/dermatlas_germlinepost_nf/-/blob/develop/README.md?ref_type=heads)
 
-Workflow Overview:
+## Workflow Overview
 
-#### **1) Generate the normal input table**
+1. Generate the normal input table
+2. Generating the cohort config file
+3. Running the pipeline
+   - i) From BAMS
+   - ii) From VCFs
+4. Make a release folder
+5. Cleanup the intermediate BAM files created by the pipeline
 
-#### **2) Generating the cohort config file**
+## Workflow Steps
 
-#### **3) Running the pipeline**
+::::{tab-set}
 
-**i) From BAMS**
+:::{tab-item} 1. Generate Input Table
 
-**ii) From VCFs**
-
-#### **4) Make a release folder**
-
-#### **5) Cleanup the intermediate BAM files created by the pipeline**
-
-## Workflow Steps:
-
-Generating the input table for samples to run germline calling on a study works essentially in the same way as when manually running of the pipeline. It requires a `.tsv`  file detailing the normal samples to run, with the following columns
+Generating the input table for samples to run germline calling on a study works essentially in the same way as when manually running of the pipeline. It requires a `.tsv` file detailing the normal samples to run, with the following columns:
 
 | sample   | object                                                                                                                                   | object index                                                                                                                                 |
 |:---------|:-----------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------|
 | PD42171b | /lustre/scratch124/casm/team113/projects/5534\_Landscape\_sebaceous\_tumours\_GRCh38\_Remap\_germline/BAMS/PD42171b.sample.dupmarked.bam | /lustre/scratch124/casm/team113/projects/5534\_Landscape\_sebaceous\_tumours\_GRCh38\_Remap\_germline/BAMS/PD42171b.sample.dupmarked.bam.bai |
 
-The easiest means to create this table is to run  the ``germline_normal_select.R`` script from GERMLINE which will populate these fields from your matched tumour normal pairs . Provided that you have installed analysis methods with dermanager, this can be accomplished by
+The easiest means to create this table is to run the `germline_normal_select.R` script from GERMLINE which will populate these fields from your matched tumour normal pairs. Provided that you have installed analysis methods with dermanager, this can be accomplished by:
 
-Navigating into your project directory with 
-
-```
+Navigate into your project directory:
+```bash
 cd $PROJECT_DIR
 ```
 
- and then get ready to run the `germline_normal_select.R`` script like so:
+Then get ready to run the germline_normal_select.R script like so:
 
 ```
 # Setup project environmental variables
@@ -50,10 +47,9 @@ Rscript ${PROJECTDIR}/scripts/germline/scripts/germline_normal_select.R \
 --bam_dir ${PROJECTDIR}/bams \
 --sample_pairs ${PROJECTDIR}/metadata/${STUDY}_${PROJECT}-one_tumour_per_patient_matched.tsv \
 --outdir ${PROJECTDIR}/metadata
-
 ```
 
-> [!CAUTION]
+````{{caution}}
 > If Rejected samples available
 >
 > If DNA samples in the cohort need to be rejected from sample list creation then you can use the update the "rejected DNA samples" table  (`${PROJECTDIR}/metadata/rejected\_DNA\_samples.txt`) and ignore the new IDs by running the command with the `–remove\_list` parameter:
@@ -65,11 +61,14 @@ Rscript ${PROJECTDIR}/scripts/germline/scripts/germline_normal_select.R \
 > --sample_pairs ${PROJECTDIR:?unset}/metadata/${STUDY:?unset}_${PROJECT:?unset}-one_tumour_per_patient_matched.tsv \
 > --remove_list ${PROJECTDIR:?unset}/metadata/rejected_DNA_samples.txt \
 > --outdir ${PROJECTDIR:?unset}/metadata
-> ```
+> 
+```
 
 This will generate a file called : \*\_**normal\_one\_per\_patient\_matched\_selected\_germl\_samples.tsv**
 
-The pipeline's parameters file encodes all of the options and inputs we might want to pass to the pipeline. For most pipeline runs there are only **3** parameters you'll need to change to get things going:
+```
+
+The pipeline's config file encodes all of the options and inputs we might want to pass to the pipeline. For most pipeline runs there are only **3** parameters you'll need to change to get things going:
 
 - The study ID (used in labelling output files)
 - The path to the normal samples `.tsv`  file (generated in Step 1)
@@ -148,7 +147,7 @@ In this script the "`-r"`  option specifies which version of the pipeline you'd
 
 **run\_germline\_calling.sh**
 
-```java
+```
 #!/bin/bash
 #BSUB -q oversubscribed
 #BSUB -G team113-grp
@@ -178,7 +177,7 @@ nextflow run 'https://github.com/team113sanger/dermatlas_germlinepost_nf' \
 
 If you called the script `run_germline.sh` then you'll now be able to submit:
 
-```java
+```
 bsub < run_germline.sh
 ```
 
@@ -238,7 +237,7 @@ params {
 
 After you have made the edit, submit a new run like so:
 
-```java
+```
 bsub < run_germline.sh
 ```
 
@@ -246,7 +245,7 @@ bsub < run_germline.sh
 
  There are several reasons the gemline pipeline might fail including bugs in the pipeline; issues with LSF; or misconfiguration.  In most cases (especially when you suspect a farm/ LSF failure), simply re-submitting the pipeline with
 
-```java
+```
 bsub < run_germline.sh
 ```
 
@@ -256,7 +255,7 @@ It is often worth taking a glance at the pipeline logs (<YOUR\_PROJECT\_DIR>/ana
 
 When jobs fail, nextflow will provide the path to the directory a failed job was run in. I'd recommend inspecting the files in here with `ls -la` and printing some of the log files for the job with
 
-```java
+```
 cat .command.err
 cat .command.out
 cat .command.sh
@@ -326,7 +325,7 @@ The code above will generate a release directory which has the following outputs
 
 Files and directories expected from the **revised SOP**:
 
-```java
+```
 tree -L 2 releasev1
 releasev1
 ├── README.md
