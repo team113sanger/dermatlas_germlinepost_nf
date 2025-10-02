@@ -49,26 +49,28 @@ Rscript ${PROJECTDIR}/scripts/germline/scripts/germline_normal_select.R \
 --outdir ${PROJECTDIR}/metadata
 ```
 
-````{caution}
-> If Rejected samples available
->
-> If DNA samples in the cohort need to be rejected from sample list creation then you can use the update the "rejected DNA samples" table  (`${PROJECTDIR}/metadata/rejected\_DNA\_samples.txt`) and ignore the new IDs by running the command with the `–remove\_list` parameter:
->
-> ```bash
-> Rscript ${PROJECTDIR}/scripts/GERMLINE/scripts/germline_normal_select.R \
-> --study_id ${STUDY:?unset} \
-> --bam_dir ${PROJECTDIR:?unset}/bams \
-> --sample_pairs ${PROJECTDIR:?unset}/metadata/${STUDY:?unset}_${PROJECT:?unset}-one_tumour_per_patient_matched.tsv \
-> --remove_list ${PROJECTDIR:?unset}/metadata/rejected_DNA_samples.txt \
-> --outdir ${PROJECTDIR:?unset}/metadata
-> 
+````{caution} If Rejected samples are available
+If DNA samples in the cohort need to be rejected from sample list creation then you can use the update the "rejected DNA samples" table  (`${PROJECTDIR}/metadata/rejected\_DNA\_samples.txt`) and ignore the new IDs by running the command with the `–remove\_list` parameter:
+
+```bash
+Rscript ${PROJECTDIR}/scripts/GERMLINE/scripts/germline_normal_select.R \
+--study_id ${STUDY:?unset} \
+--bam_dir ${PROJECTDIR:?unset}/bams \
+--sample_pairs ${PROJECTDIR:?unset}/metadata/${STUDY:?unset}_${PROJECT:?unset}-one_tumour_per_patient_matched.tsv \
+--remove_list ${PROJECTDIR:?unset}/metadata/rejected_DNA_samples.txt \
+--outdir ${PROJECTDIR:?unset}/metadata 
 ```
 
 This will generate a file called : \*\_**normal\_one\_per\_patient\_matched\_selected\_germl\_samples.tsv**
 
-```
+:::
 
-The pipeline's config file encodes all of the options and inputs we might want to pass to the pipeline. For most pipeline runs there are only **3** parameters you'll need to change to get things going:
+
+:::{tab-item} 2. Generating the cohort config file
+
+The pipeline's config file encodes all of the options and inputs we might want to pass to the pipeline. For newer versions of Dermanager `commands/germline.config`
+
+For most pipeline runs there are only **3** parameters you'll need to change to get things going:
 
 - The study ID (used in labelling output files)
 - The path to the normal samples `.tsv`  file (generated in Step 1)
@@ -77,13 +79,6 @@ The pipeline's config file encodes all of the options and inputs we might want t
 There is a large set of other parameters specified within this file but won't normally need changing. These other parameters mostly modify which steps are included in a pipeline run and paths to reference files. For convenience of maintaining the pipeline in a way that in can be run on or off farm22, all the reference files used by the pipeline are stored in
 
 `/lustre/scratch124/casm/team113/secure-lustre/resources/dermatlas. T`hese are direct copies of the resources directory you might find in other dermatlas PUs
-
-**Example params file:**
-
-```
-  
-
-```
 
 **germline.config**
 
@@ -119,8 +114,9 @@ params {
   
 }
 ```
+:::
 
-**Running the pipeline**
+:::{tab-item} 3. Running the pipeline
 
 > [!IMPORTANT]
 > Different entry points
@@ -240,6 +236,7 @@ After you have made the edit, submit a new run like so:
 ```
 bsub < run_germline.sh
 ```
+:::
 
 ### Troubleshooting problem nextflow runs:
 
