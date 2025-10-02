@@ -49,7 +49,7 @@ Rscript ${PROJECTDIR}/scripts/germline/scripts/germline_normal_select.R \
 --outdir ${PROJECTDIR}/metadata
 ```
 
-````{{caution}}
+````{caution}
 > If Rejected samples available
 >
 > If DNA samples in the cohort need to be rejected from sample list creation then you can use the update the "rejected DNA samples" table  (`${PROJECTDIR}/metadata/rejected\_DNA\_samples.txt`) and ignore the new IDs by running the command with the `–remove\_list` parameter:
