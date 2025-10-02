@@ -88,9 +88,9 @@ pages:
   image: python:3.12
   script:
     - pip install sphinx sphinx-rtd-theme sphinx-copybutton sphinx-tabs myst-parser
-    - cd documentation
+    - cd docs
     - make html
     - cd ..
-    - mv documentation/build/html public
+    - mv docs/build/html public
   pages:
     publish: public
