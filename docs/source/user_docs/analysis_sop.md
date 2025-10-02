@@ -63,6 +63,7 @@ Rscript ${PROJECTDIR}/scripts/GERMLINE/scripts/germline_normal_select.R \
 
 This will generate a file called : \*\_**normal\_one\_per\_patient\_matched\_selected\_germl\_samples.tsv**
 
+```
 :::
 
 
@@ -118,20 +119,21 @@ params {
 
 :::{tab-item} 3. Running the pipeline
 
-> [!IMPORTANT]
-> Different entry points
->
-> This pipeline has two entry points: one starting from the raw sample BAMs for a cohort and one starting from the VCFs that have been produced by GATK haplotype caller.   
-> This is partly to help speed things up (so that you can avoid the computationally intensive steps at the start of the pipeline if you have already run without the need for a cached run of the pipeline.
->
-> As you might be aware, nextflow has a helpful cache-ing feature which keeps a record of which steps have been run and skips them. This ordinarily works very smoothly but there is a race condition which prevents caching working properly for this pipeline (calling of variants by chromosome) and breaks things when you try to rerun. 
->
-> This bug has been resolved by preventing cacheing in later versions of the pipeline (0.3.3+) but if you have a run that complains in this way,  please see the ii) Running from VCFs section
->
-> ```coldfusion
-> WARN: [DERMATLAS_GERMLINE:GATK_GVCF_PER_CHROM (25)] Unable to resume cached task -- See log file for details
-> WARN: [DERMATLAS_GERMLINE:GATK_GVCF_PER_CHROM (24)] Unable to resume cached task -- See log file for details
-> ```
+```{important}
+
+Different entry points
+
+This pipeline has two entry points: one starting from the raw sample BAMs for a cohort and one starting from the VCFs that have been produced by GATK haplotype caller. This is partly to help speed things up (so that you can avoid the computationally intensive steps at the start of the pipeline if you have already run without the need for a cached run of the pipeline.
+
+As you might be aware, nextflow has a helpful cache-ing feature which keeps a record of which steps have been run and skips them. This ordinarily works very smoothly but there is a race condition which prevents caching working properly for this pipeline (calling of variants by chromosome) and breaks things when you try to rerun. 
+
+This bug has been resolved by preventing cacheing in later versions of the pipeline (0.3.3+) but if you have a run that complains in this way,  please see the ii) Running from VCFs section
+```
+
+```
+WARN: [DERMATLAS_GERMLINE:GATK_GVCF_PER_CHROM (25)] Unable to resume cached task -- See log file for details
+WARN: [DERMATLAS_GERMLINE:GATK_GVCF_PER_CHROM (24)] Unable to resume cached task -- See log file for details
+ ```
 
 **i) From bams**
 
@@ -191,7 +193,7 @@ You need only make three edits.
 
 Here is what the updated config file should look like:
 
-```coldfusion
+```
 params {
     study_id = "${STUDY}"
     tsv_file = "${PROJECT_DIR}/metadata/${STUDY}_normal_one_per_patient_matched_selected_germl_samples.tsv"
