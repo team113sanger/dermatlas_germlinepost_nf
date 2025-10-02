@@ -33,7 +33,7 @@ cd $PROJECT_DIR
 
 Then get ready to run the germline_normal_select.R script like so:
 
-```
+
 # Setup project environmental variables
 
 source source_me.sh
@@ -49,12 +49,11 @@ Rscript ${PROJECTDIR}/scripts/germline/scripts/germline_normal_select.R \
 --outdir ${PROJECTDIR}/metadata
 ```
 
-:::{caution}
-If Rejected samples are available
+```{caution} If Rejected samples are available
 
 If DNA samples in the cohort need to be rejected from sample list creation then you can use the update the "rejected DNA samples" table  (`${PROJECTDIR}/metadata/rejected\_DNA\_samples.txt`) and ignore the new IDs by running the command with the `–remove\_list` parameter:
-```
 
+```
 
 ```bash
 Rscript ${PROJECTDIR}/scripts/GERMLINE/scripts/germline_normal_select.R \
