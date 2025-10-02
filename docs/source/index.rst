@@ -10,7 +10,8 @@ dermatlas_germlinepost_nf documentation
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-      user_docs/analysis_sop
+
+    user_docs/analysis_sop.md
 
 
 
