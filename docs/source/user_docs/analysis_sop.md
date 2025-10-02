@@ -1,4 +1,3 @@
-
 # Nextflow: Germline variant calling pipeline
 
 Germline variant calling and post-processing for DERMATLAS can be run mostly with a single nextflow pipeline in a largely "set-and-forget" manner to reproduce the manual steps detailed in [DERMATLAS - Germline calling with GATK - for WES - using Nextflow Tower](https://confluence.sanger.ac.uk/x/BJOeB). This document contains an overview of how to configure and run the pipeline. For a more detailed explanation of the pipeline, the inputs, steps and requirements for running can be found within the pipeline project [README](https://gitlab.internal.sanger.ac.uk/DERMATLAS/analysis-methods/dermatlas_germlinepost_nf/-/blob/develop/README.md?ref_type=heads)
@@ -19,7 +18,7 @@ Workflow Overview:
 
 #### **5) Cleanup the intermediate BAM files created by the pipeline**
 
-### Workflow Steps:
+## Workflow Steps:
 
 Generating the input table for samples to run germline calling on a study works essentially in the same way as when manually running of the pipeline. It requires a `.tsv`  file detailing the normal samples to run, with the following columns
 
@@ -31,13 +30,13 @@ The easiest means to create this table is to run  the ``germline_normal_select.
 
 Navigating into your project directory with 
 
-```java
+```
 cd $PROJECT_DIR
 ```
 
  and then get ready to run the `germline_normal_select.R`` script like so:
 
-```bash
+```
 # Setup project environmental variables
 
 source source_me.sh
@@ -89,7 +88,7 @@ There is a large set of other parameters specified within this file but won't no
 
 **germline.config**
 
-```cf
+```
 params {
     study_id = "${STUDY}"
     tsv_file = "${PROJECT_DIR}/metadata/${STUDY}_normal_one_per_patient_matched_selected_germl_samples.tsv"
