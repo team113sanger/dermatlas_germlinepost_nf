@@ -11,7 +11,7 @@ dermatlas_germlinepost_nf documentation
    :maxdepth: 2
    :caption: Contents:
 
-    user_docs/analysis_sop.md
+   user_docs/analysis_sop.md
 
 
 
