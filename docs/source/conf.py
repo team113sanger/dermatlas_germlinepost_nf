@@ -17,7 +17,8 @@ release = '0.3.3'
 extensions = [
     "sphinx.ext.napoleon",
     "myst_parser",
-    "sphinx-copybutton"
+    "sphinx_tabs.tabs",
+    "sphinx_copybutton"
 ]
 
 
