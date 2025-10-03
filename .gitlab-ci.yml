@@ -87,8 +87,8 @@ pages:
   stage: deploy
   image: python:3.12
   script:
-    - pip install sphinx sphinx-rtd-theme sphinx-copybutton sphinx-tabs myst-parser
     - cd docs
+    - pip install -r source/requirements.txt
     - make html
     - cd ..
     - mv docs/build/html public
