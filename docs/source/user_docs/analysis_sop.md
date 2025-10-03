@@ -17,7 +17,7 @@ Germline variant calling and post-processing for DERMATLAS can be run mostly wit
 ::::{tab-set}
 
 :::{tab-item}
-1. Generate Input Table
+### 1. Generate Input Table
 
 Generating the input table for samples to run germline calling on a study works essentially in the same way as when manually running of the pipeline. It requires a `.tsv` file detailing the normal samples to run, with the following columns:
 
@@ -73,7 +73,8 @@ This will generate a file called : \*\_**normal\_one\_per\_patient\_matched\_sel
 :::
 
 
-:::{tab-item} 2. Generating the cohort config file
+:::{tab-item} 
+### 2. Generating the cohort config file
 
 The pipeline's config file encodes all of the options and inputs we might want to pass to the pipeline. For newer versions of Dermanager `commands/germline.config`
 
@@ -124,7 +125,8 @@ params {
 
 :::
 
-:::{tab-item} 3. Running the pipeline
+:::{tab-item} 
+## 3. Running the pipeline
 
 :::{important}
 Different entry points
@@ -141,7 +143,7 @@ WARN: [DERMATLAS_GERMLINE:GATK_GVCF_PER_CHROM (25)] Unable to resume cached task
 WARN: [DERMATLAS_GERMLINE:GATK_GVCF_PER_CHROM (24)] Unable to resume cached task -- See log file for details
 ```
 
-**i) From bams**
+#### **i) From bams**
 
 Once you have your inputs and are authenticated you can prepare to launch the pipeline by modifying and save this wrapper script. You will need to update the desitination of the params file + desired log file locations. 
 
@@ -187,7 +189,7 @@ bsub < run_germline.sh
 
 The bsub magic at the start of the wrapper script will send a nextflow "master job", which looks after all other jobs to the oversubscribed queue (where it can live in peace running for a long period without fear of termination). Nextflow will shortly start submitting jobs on your behalf to the relevant queues
 
-### ii) From VCFs
+#### ii) From VCFs
 
 If for some reason you aren't able to relaunch the pipeline with a cache - then you might want to run only the later steps of the pipeline. This is fairly straightforward to do by altering your germline config file.
 
@@ -272,7 +274,7 @@ Nextflow is able to keep track of past runs by creating a .nextflow directory in
 
 :::
 
-## **Make a variant release**
+### 4. **Make a variant release**
 
 ---
 
