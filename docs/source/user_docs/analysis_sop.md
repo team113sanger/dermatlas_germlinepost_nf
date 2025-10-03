@@ -134,17 +134,17 @@ WARN: [DERMATLAS_GERMLINE:GATK_GVCF_PER_CHROM (24)] Unable to resume cached task
 
 #### **i) From bams**
 
-Provided called the script `run_germline.sh` then you'll now be able to submit:
 
+Provided that you have setup your project with new versions of dermanager the script `commands/run_germline.sh` should have been autopopulated. If this is the case then you'll now be able to launch the pipeline with:
 ```bash
 bsub -e logs/germline.e -o logs/germline.o < run_germline.sh
 ```
 
-The bsub magic at the start of the wrapper script will send a nextflow "master job", which looks after all other jobs to the oversubscribed queue (where it can live in peace running for a long period without fear of termination). Nextflow will shortly start submitting jobs on your behalf to the relevant queues
+The bsub magic at the start of the wrapper script will send a nextflow "master job", that looks after all other jobs to the oversubscribed queue (where it can live in peace running for a long period without fear of termination). Nextflow will shortly start submitting jobs on your behalf to the relevant queues
 
-If you haven't initialised your project with dermanager you can prepare to launch the pipeline by modifying and saving this wrapper script. You will need to update the desitination of the config file + desired log file locations. 
+If you haven't initialised your project with dermanager you can prepare to launch the pipeline by modifying and saving this wrapper script and the config file provided above. You will need to update the desitination of the config file + desired log file locations. 
 
-In this script the "`-r"`  option specifies which version of the pipeline you'd like to run. Normally you should select the latest version.
+In this script the "`-r"`  option specifies which version of the pipeline you'd like to run. Normally you should select the latest version. Check the project gitlab for info on latests versions.
 
 **Example file:**
 
@@ -278,18 +278,15 @@ Example:
   make_germ_variant_release.sh /My/DERMATLAS/PROJECTDIR 6674 2 
 ```
 
-#### **For running this script you will require the:**
+**For running this script you will require a:**
 
 - **STUDY**: Sequencing study ID
 - **PROJECTDIR**: Project directory
 - **FINALJOINTDIR:** Full path to the directory where  the Final VCF files are
-- VERSION: Release version you are creating (Default 1)
+- **VERSION**: Release version you are creating (Default 1)
 
 **Example running command:**
 
-****It is required to run  **source\_me.sh** prior to the job execution 
-
-**Convert VCF to MAFs and plot**
 
 ```bash
 # Navigate into the project directory and source the project environmental variables
