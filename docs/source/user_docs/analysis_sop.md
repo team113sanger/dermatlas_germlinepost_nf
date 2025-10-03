@@ -20,7 +20,7 @@ Generating the input table for samples to run germline calling on a study works 
 
 | sample   | object                                                                                                                                   | object index                                                                                                                                 |
 |:---------|:-----------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------|
-| PD42171b | /lustre/scratch124/casm/team113/projects/5534\_Landscape\_sebaceous\_tumours\_GRCh38\_Remap\_germline/BAMS/PD42171b.sample.dupmarked.bam | /lustre/scratch124/casm/team113/projects/5534\_Landscape\_sebaceous\_tumours\_GRCh38\_Remap\_germline/BAMS/PD42171b.sample.dupmarked.bam.bai |
+| PD42171b | /lustre/scratch124/casm/team113/projects/5534_Landscape_sebaceous_tumours_GRCh38_Remap_germline/BAMS/PD42171b.sample.dupmarked.bam | /lustre/scratch124/casm/team113/projects/5534_Landscape_sebaceous_tumours_GRCh38_Remap_germline/BAMS/PD42171b.sample.dupmarked.bam.bai |
 
 
 The easiest means to create this table is to run the `germline_normal_select.R` script from our [GERMLINE] codebase which will populate these fields from your matched tumour-normal pairs. Provided that you have installed your [analysis methods with dermanager](https://confluence.sanger.ac.uk/x/fwBTCQ), this can be accomplished by navigating into your project directory:
@@ -47,7 +47,7 @@ Rscript ${PROJECTDIR}/scripts/germline/scripts/germline_normal_select.R \
 --outdir ${PROJECTDIR}/metadata
 ```
 
-```{note}
+:::{note}
 **If Rejected samples are available**
 
 If DNA samples in the cohort need to be rejected from sample list creation then you can use the update the "rejected DNA samples" table  (`${PROJECTDIR}/metadata/rejected\_DNA\_samples.txt`) and ignore the new IDs by running the command with the `–remove\_list` parameter:
@@ -63,7 +63,9 @@ Rscript ${PROJECTDIR}/scripts/GERMLINE/scripts/germline_normal_select.R \
 --outdir ${PROJECTDIR:?unset}/metadata 
 ```
 
-This will generate a file called \*\_**normal\_one\_per\_patient\_matched\_selected\_germl\_samples.tsv**
+This will generate a file called `{STUDY}_normal_one_per_patient_matched_selected_germl_samples.tsv` where `{STUDY}` is replaced with your study ID.
+
+:::
 
 ### 2. Generating the cohort config file
 
@@ -75,9 +77,7 @@ For most pipeline runs there are only **3** parameters that you might ever need
 - The path to the normal samples `.tsv`  file (generated in Step 1)
 - The output directory to publish results into
 
-There is a large set of other parameters specified within the config file but won't normally need changing. These other parameters mostly modify which steps are included in a pipeline run and paths to reference files. For convenience of maintaining the pipeline in a way that in can be run on or off farm22, all the reference files used by the pipeline are softimes stored in
-
-`/lustre/scratch127/casm/teams/team113//secure-lustre/projects/dermatlas/resources/dermatlas`. These are direct copies of the resources directory you might find in other dermatlas PUs
+There is a large set of other parameters specified within the config file but won't normally need changing. These other parameters mostly modify which steps are included in a pipeline run and paths to reference files. For convenience of maintaining the pipeline in a way that in can be run on or off farm22, all the reference files used by the pipeline are duplicated in `/lustre/scratch127/casm/teams/team113//secure-lustre/projects/dermatlas/resources/dermatlas`. These are direct copies of the resources directory you might find in other dermatlas PUs
 
 Should you need one an example config file is included below:
 **germline.config**
@@ -117,7 +117,7 @@ params {
 
 ### 3. Running the pipeline
 
-```{important}
+:::{important}
 **Different entry points**
 
 This pipeline has two entry points: one starting from the raw sample BAMs for a cohort and one starting from the VCFs that have been produced by GATK haplotype caller. This is partly to help speed things up (so that you can avoid the computationally intensive steps at the start of the pipeline if you have already run without the need for a cached run of the pipeline.
@@ -125,7 +125,7 @@ This pipeline has two entry points: one starting from the raw sample BAMs for a 
 As you might be aware, nextflow has a helpful cache-ing feature which keeps a record of which steps have been run and skips them. This ordinarily works very smoothly but there is a race condition which prevents caching working properly for this pipeline (calling of variants by chromosome) and breaks things when you try to rerun. 
 
 This bug has been resolved by preventing cacheing in later versions of the pipeline (0.3.3+) but if you have a run that complains in this way,  please see the ii) Running from VCFs section
-```
+:::
 
 ```
 WARN: [DERMATLAS_GERMLINE:GATK_GVCF_PER_CHROM (25)] Unable to resume cached task -- See log file for details
@@ -148,7 +148,7 @@ In this script the "`-r"`  option specifies which version of the pipeline you'd
 
 **Example file:**
 
-**run\_germline\_calling.sh**
+**run_germline_calling.sh**
 
 ```bash
 #!/bin/bash
@@ -242,7 +242,7 @@ bsub -e germline_vcf.e -o germline_vcf.o < run_germline.sh
 
 will trigger the nextflow `-resume` directive and the pipeline will pick up where it left off.
 
-It is often worth taking a glance at the pipeline logs (<YOUR\_PROJECT\_DIR>/analysis/logs/gemline\_calling\_%J.o) to follow and see what's going on, especially if things have failed/
+It is often worth taking a glance at the pipeline logs (`<YOUR_PROJECT_DIR>/analysis/logs/germline_calling_%J.o`) to follow and see what's going on, especially if jobs have failed.
 
 When jobs fail, nextflow will provide the path to the directory a failed job was run in. I'd recommend inspecting the files in here with `ls -la` and printing some of the log files for the job with
 
@@ -253,18 +253,18 @@ cat .command.sh
 
 ```
 
-```{important}
+:::{important}
 **Multiple runs**
 
 Nextflow is able to keep track of past runs by creating a .nextflow directory in the current location and stores intermediate files in a work. If you want to run the same pipeline but on different cohorts (e.g. hidradenomas and hidradenocarcionmas) in parallel, please ensure that you launch each instance of the pipeline in a seperate directory - otherwise nextflow can't keep track of what is going on an report errors about "nextflow lock files "
 
-```
+:::
 
 ### 4. **Make a variant release**
 
 ---
 
-To generate a variant release containing all the summary tables, filtered variants, oncoplots, MAF file for the cohort, and readme, we use the `make\_germ\_variant\_release.sh` script that lives in the GERMLINE codebase
+To generate a variant release containing all the summary tables, filtered variants, oncoplots, MAF file for the cohort, and readme, we use the `make_germ_variant_release.sh` script that lives in the GERMLINE codebase
 
 **Usage:**
 
@@ -275,7 +275,7 @@ Description: Script to generate a release directory at <PROJECTDIR>/analysis/ger
 Arguments:
   PROJECTDIR        Project directory full path 
   STUDY             Sequencescape STUDY sequencing ID
-  RELEASE           Relase number for germline  
+  RELEASE           Release number for germline  
 
 Example:
   make_germ_variant_release.sh /My/DERMATLAS/PROJECTDIR 6674 2 
@@ -307,7 +307,7 @@ FINALJOINTDIR=${PROJECTDIR}/analysis/germline/Final_joint_call
 
 cd ${FINALJOINTDIR} 
 
-#MAke a release 
+# Make a release 
 bash ${PROJECTDIR}/scripts/germline/scripts/make_germ_variant_release.sh ${PROJECTDIR:?unset} ${STUDY:?unset} ${VERSION:?unset}
 
 ```
@@ -330,7 +330,7 @@ releasev1
 
 ```
 
-Useful links : 
+Useful links: 
 
 - GATK Workflow details for joint genotype calling for cohorts <https://gatk.broadinstitute.org/hc/en-us/articles/360035890411-Calling-variants-on-cohorts-of-samples-using-the-HaplotypeCaller-in-GVCF-mode>
 - This is a quick overview from GATK documentation on how to apply the workflow in practice. For more details, see the [Best Practices workflows](https://gatk.zendesk.com/hc/en-us/articles/360035894751) documentation.
