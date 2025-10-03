@@ -71,8 +71,6 @@ This will generate a file called `{STUDY}_normal_one_per_patient_matched_selecte
 
 :::
 
-:::
-
 :::{tab-item} Step 2: Generating Config File
 
 ### 2. Generating the cohort config file
@@ -273,9 +271,7 @@ Nextflow is able to keep track of past runs by creating a .nextflow directory in
 
 :::
 
-### 4. **Make a variant release**
-
----
+### 4. Make a variant release
 
 To generate a variant release containing all the summary tables, filtered variants, oncoplots, MAF file for the cohort, and readme, we use the `make_germ_variant_release.sh` script that lives in the GERMLINE codebase
 
