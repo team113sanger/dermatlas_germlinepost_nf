@@ -14,7 +14,7 @@ Germline variant calling and post-processing for DERMATLAS can be run mostly wit
 
 ## Workflow Steps
 
-::::{tab-set}
+:::{tab-set}
 
 :::{tab-item} 1. Generate Input Table
 
@@ -23,6 +23,8 @@ Generating the input table for samples to run germline calling on a study works 
 | sample   | object                                                                                                                                   | object index                                                                                                                                 |
 |:---------|:-----------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------|
 | PD42171b | /lustre/scratch124/casm/team113/projects/5534\_Landscape\_sebaceous\_tumours\_GRCh38\_Remap\_germline/BAMS/PD42171b.sample.dupmarked.bam | /lustre/scratch124/casm/team113/projects/5534\_Landscape\_sebaceous\_tumours\_GRCh38\_Remap\_germline/BAMS/PD42171b.sample.dupmarked.bam.bai |
+
+```
 
 The easiest means to create this table is to run the `germline_normal_select.R` script from GERMLINE which will populate these fields from your matched tumour normal pairs. Provided that you have installed analysis methods with dermanager, this can be accomplished by:
 
@@ -49,11 +51,13 @@ Rscript ${PROJECTDIR}/scripts/germline/scripts/germline_normal_select.R \
 --outdir ${PROJECTDIR}/metadata
 ```
 
-```{caution} If Rejected samples are available
+:::{note} 
+
+If Rejected samples are available
 
 If DNA samples in the cohort need to be rejected from sample list creation then you can use the update the "rejected DNA samples" table  (`${PROJECTDIR}/metadata/rejected\_DNA\_samples.txt`) and ignore the new IDs by running the command with the `–remove\_list` parameter:
 
-```
+
 
 ```bash
 Rscript ${PROJECTDIR}/scripts/GERMLINE/scripts/germline_normal_select.R \
