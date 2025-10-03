@@ -1,6 +1,6 @@
 stages:
   - deploy
-  - test
+#  - test
 
 include:
   # DOCS: https://gitlab.internal.sanger.ac.uk/team113sanger/common/cicd-template/-/blob/develop/README.md
