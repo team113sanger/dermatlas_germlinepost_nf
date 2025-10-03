@@ -35,7 +35,7 @@ cd $PROJECT_DIR
 
 Then get ready to run the germline_normal_select.R script like so:
 
-
+```bash
 # Setup project environmental variables
 
 source source_me.sh
