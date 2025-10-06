@@ -7,7 +7,7 @@
 set -euo pipefail
 
 export CONFIG="${PROJECT_DIR}/commands/germline_variants.config"
-export REVISION="0.3.3"
+export REVISION="0.3.4"
 
 # Create isolated pipeline directory
 PIPELINE_DIR="${PROJECT_DIR}/germline_pipeline"
