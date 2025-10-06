@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.3.4] - 2025-10-06
+### Changed 
+- Moved to documentation via sphinx and bundled with repo rather than confleunce
+
+### Added
+- Asset updates for multi-pipline running setup as default
+- Documentation updates to reflect multi-pipeline
+
+
 ## [0.3.3] - 2025-08-08
 ### Changed 
 - Quality of life improvements. Correction of file names and locations to better mirror the manual pipeline.
