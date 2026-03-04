@@ -34,4 +34,4 @@ nextflow run 'https://github.com/team113sanger/dermatlas_germlinepost_nf' \
 -profile farm22 \
 -work-dir "${NXF_WORK}"
 
-chmod -R ug+rw ${PROJECT_DIR}/results/germline
+chmod -R ug+rw ${PROJECT_DIR}/analysis/germline
