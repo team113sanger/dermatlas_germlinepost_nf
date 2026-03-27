@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.3.5] - 2026-03-27
+### Fixed
+- Fixed VEP annotation parameters in `vep_annotation.nf` for `homo_sapiens` to ensure match with the ones used for somatic calling pipeline. 
+
 ## [0.3.4] - 2025-10-06
 ### Changed 
 - Moved to documentation via sphinx and bundled with repo rather than confleunce

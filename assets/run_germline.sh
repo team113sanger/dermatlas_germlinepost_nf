@@ -7,7 +7,7 @@
 set -euo pipefail
 
 export CONFIG="${PROJECT_DIR}/commands/germline_variants.config"
-export REVISION="0.3.4"
+export REVISION="0.3.5"
 
 # Create isolated pipeline directory
 PIPELINE_DIR="${PROJECT_DIR}/germline_pipeline"
@@ -34,4 +34,4 @@ nextflow run 'https://github.com/team113sanger/dermatlas_germlinepost_nf' \
 -profile farm22 \
 -work-dir "${NXF_WORK}"
 
-chmod -R ug+rw ${PROJECT_DIR}/results/germline
+chmod -R ug+rw ${PROJECT_DIR}/analysis/germline
