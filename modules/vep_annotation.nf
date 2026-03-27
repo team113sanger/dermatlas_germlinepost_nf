@@ -32,9 +32,9 @@ process ANNOTATE_VARIANTS {
     --symbol \
     --biotype \
     --vcf \
-    --sift s \
+    --sift b \
     --assembly ${assembly_name} \
-    --flag_pick_allele \
+    --flag_pick_allele_gene \
     --canonical \
     --hgvs \
     --protein \
