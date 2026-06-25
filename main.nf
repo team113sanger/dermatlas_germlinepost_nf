@@ -123,3 +123,7 @@ workflow DERMATLAS_GERMLINE {
 workflow {
     DERMATLAS_GERMLINE()
 }
+
+workflow.onComplete {
+    Utils.reportRun(workflow, params)
+}
