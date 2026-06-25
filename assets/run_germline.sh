@@ -6,6 +6,7 @@
 
 set -euo pipefail
 
+source source_me.sh
 export CONFIG="${PROJECT_DIR}/commands/germline_variants.config"
 export REVISION="0.3.5"
 
