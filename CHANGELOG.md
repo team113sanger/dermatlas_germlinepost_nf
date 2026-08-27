@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+## [0.3.6] - 2026-08-27
 ### Added
 - `.github/workflows/publish-assets.yml` publishes `assets/` to GitHub Releases as
   `projectify_asset_bundle.tar.gz` (and a `.sha256` of it) on every push to `main` and
