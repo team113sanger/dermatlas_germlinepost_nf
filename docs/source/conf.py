@@ -9,7 +9,7 @@
 project = 'dermatlas_germlinepost_nf'
 copyright = '2025, Jamie Billington'
 author = 'Jamie Billington'
-release = '0.3.3'
+release = '0.4.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
