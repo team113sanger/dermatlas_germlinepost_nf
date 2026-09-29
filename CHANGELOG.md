@@ -21,6 +21,8 @@ changelog entry to indicate the impact of the change:
   or infrastructure, without changing its scientific processing or results.
 
 ## [Unreleased]
+
+## [0.4.0] - 2026-09-29
 ### Added
 - **INTEGRATION** - run reporting. `workflow.onComplete` calls `Utils.reportRun`
   (`lib/Utils.groovy`, shared byte-for-byte with the other Dermatlas pipelines), which
