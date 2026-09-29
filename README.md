@@ -34,7 +34,7 @@ Inputs will depend on whether you are runnning in post-processing mode or end-to
 - `sample_map`: path to a tab delimited file containing Sample IDs and the vcf files that they correspond to. Please see `tests/testdata/sample_map.tsv` for an example
 
 **If false, the following inputs are required:**
-- `tsv_file`: a manifest containing sample ids, associated bam files and their indexes. Please see `tests/testdata/manifest.tsv` for an example
+- `tsv_file`: a manifest containing sample ids, associated bam files and their indexes (header `sample`, `object`, `object_index`). Please see `tests/testdata/manifest.tsv` for an example. In managed runs dermanager generates it and exports its path as `DNA_GERMLINE_NORMAL_MANIFEST`, which `assets/germline_variants.config` reads.
 
 
 
@@ -60,42 +60,268 @@ Reference files that are reused across pipeline executions have been placed with
 
 Default values for reference files are supplied within the `nextflow.config` file and can be overided by adding them to the params `.json` file. An example complete params file `tests/test_data/test_params.json` is supplied within this repository for demonstation.
 
-## Usage 
+## Usage
 
-The recommended way to launch this pipeline on Sangers HPC is using a wrapper script (e.g. `bsub < my_wrapper.sh`) that submits nextflow as a job and records the version (**e.g.** `-r 0.1.1`)  and the `.json` parameter file supplied for a run.
+Whether launched via the integrated website or manually, the pipeline is submitted the same way: `run_germline.sh` is piped into `bsub` as the
+job script.
 
-An example wrapper script:
-```
-#!/bin/bash
-#BSUB -q oversubscribed
-#BSUB -G team113-grp
-#BSUB -R "select[mem>8000] rusage[mem=8000] span[hosts=1]"
-#BSUB -M 8000
-#BSUB -oo logs/germline_variant_calling_%J.o
-#BSUB -eo logs/germline_variant_calling_%J.e
-
-PARAMS_FILE="/lustre/scratch125/casm/team113da/users/jb63/nf_germline_testing/params.json"
-
-# Load module dependencies
-module load nextflow-23.10.0
-module load /software/modules/ISG/singularity/3.11.4
-
-# Create a nextflow job that will spawn other jobs
-
-nextflow run 'https://gitlab.internal.sanger.ac.uk/DERMATLAS/analysis-methods/dermatlas_germlinepost_nf' \
--r 0.3.5 \
--params-file $PARAMS_FILE \
--profile farm22 
+```bash
+bsub -o "<stdout_log>" -e "<stderr_log>" \
+     -g "<lsf_job_group>" -J "<job_name>" \
+     < <dir>/run_germline.sh
 ```
 
-When running the pipeline for the first time on the farm you will need to provide credentials to pull singularity containers from the team113 sanger gitlab. You should be able to do this by running
-```
-module load singularity/3.11.4 
+Queue, resource group and memory come from the `#BSUB` directives inside the wrapper, so `bsub` adds only the job
+name, job group and log paths. It is an ordinary bash script, so `bash run_germline.sh` also runs it in the
+foreground on any farm node - the `#BSUB` lines are inert comments; `bsub` only makes it a batch job. Either way
+it sources `./source_me.sh` relative to the directory it was started from.
+
+Nearly all runs are triggered from the [Dermatlas cohorts page](https://team113.sanger.ac.uk/dermatlas/cohorts/),
+which issues that command remotely against a project directory it has already provisioned - `source_me.sh`,
+`run_germline.sh` and `germline_variants.config` are all written for you, and so is the normal manifest
+(`DNA_GERMLINE_NORMAL_MANIFEST`) the pipeline reads. There is nothing to do by hand.
+
+When running the pipeline for the first time on the farm you will need to provide credentials to pull singularity
+containers from the team113 sanger gitlab registry:
+
+```bash
+module load singularity/3.11.4
 singularity remote login --username $(whoami) docker://gitlab-registry.internal.sanger.ac.uk
 ```
 
-The pipeline can configured to run on either Sanger OpenStack secure-lustre instances or farm22 by changing the profile speicified:
-`-profile secure_lustre` or `-profile farm22`. 
+### Without the website
+
+Clone the repo and supply what the website otherwise provisions: a project directory, the pipeline's
+environment, and a couple of edits to the wrapper.
+
+The one input with a required shape is the normal manifest: a tab-separated file with a header and the columns
+`sample`, `object` (the BAM) and `object_index` (its index), one matched normal per patient - see
+[Inputs](#cohort-dependent-variables) and `tests/testdata/manifest.tsv`.
+
+```
+<project_dir>/                                   # PROJECT_DIR
+├── metadata/
+│   └── normal_manifest.tsv                      # DNA_GERMLINE_NORMAL_MANIFEST
+├── analysis/                                    # ANALYSIS_DIR; results land in analysis/germline
+└── germline_pipe/                               # created by the wrapper, not by you
+    ├── .lock                                    # see Reclaiming disk space
+    ├── .completed_successfully                  #   "
+    ├── work/                                    # deleted after a successful run
+    └── tmp/
+```
+
+The environment itself can come from a `source_me.sh` or from the wrapper directly. Both are supported; pick one.
+
+<details>
+<summary><strong>With a <code>source_me.sh</code></strong> - reusable across runs, and the shape the website generates</summary>
+
+1. Write `source_me.sh` beside the wrapper in `assets/`, which is where the wrapper looks by default. With
+   reporting opted out, these six exports are the whole contract:
+
+   ```bash
+   export PROJECT_DIR="/lustre/.../6740_3016_MY_COHORT_WES"
+   export COMMANDS_DIR="${PROJECT_DIR}/commands"
+   export ANALYSIS_DIR="${PROJECT_DIR}/analysis"
+   export STUDY="6740"     # prefixes output filenames, and the run id
+   export PROJECT="3016"   # part of the run id
+   export DNA_GERMLINE_NORMAL_MANIFEST="${PROJECT_DIR}/metadata/normal_manifest.tsv"  # tsv_file
+   ```
+
+2. In the wrapper, under **OPT-IN REPORTING** set `DERMATLAS_WEBSITE_LOGGING` and
+   `DERMATLAS_SLACK_NOTIFICATIONS` to `"false"`, and under **RUN CONFIGURATION** point `CONFIG` at your
+   `germline_variants.config` and set `REVISION` to the release tag to run.
+
+3. Submit from the directory holding `source_me.sh`:
+
+   ```bash
+   cd dermatlas_germlinepost_nf/assets
+   bsub -o run.out -e run.err -J "germline-<cohort>" < run_germline.sh
+   ```
+
+To override a single value without regenerating the file, uncomment just that variable in the wrapper's
+**MANUAL ENVIRONMENT OVERRIDES** block - it is read after `source_me.sh`, so it wins.
+
+</details>
+
+<details>
+<summary><strong>By editing <code>run_germline.sh</code> directly</strong> - self-contained, nothing to track outside the script</summary>
+
+1. Under **ENVIRONMENT SETUP**, set `SOURCE_ME="none"` so the wrapper skips sourcing anything.
+
+2. Under **MANUAL ENVIRONMENT OVERRIDES**, uncomment and fill in the pipeline-essential exports. With reporting
+   opted out, these six are the whole contract:
+
+   ```bash
+   export PROJECT_DIR="/lustre/.../6740_3016_MY_COHORT_WES"
+   export COMMANDS_DIR="${PROJECT_DIR}/commands"
+   export ANALYSIS_DIR="${PROJECT_DIR}/analysis"
+   export STUDY="6740"     # prefixes output filenames, and the run id
+   export PROJECT="3016"   # part of the run id
+   export DNA_GERMLINE_NORMAL_MANIFEST="${PROJECT_DIR}/metadata/normal_manifest.tsv"  # tsv_file
+   ```
+
+3. Under **OPT-IN REPORTING** set `DERMATLAS_WEBSITE_LOGGING` and `DERMATLAS_SLACK_NOTIFICATIONS` to
+   `"false"`, and under **RUN CONFIGURATION** point `CONFIG` at your `germline_variants.config` and set `REVISION`
+   to the release tag to run.
+
+4. Submit from anywhere - with `SOURCE_ME="none"` there is no `source_me.sh` to be beside:
+
+   ```bash
+   bsub -o run.out -e run.err -J "germline-<cohort>" < dermatlas_germlinepost_nf/assets/run_germline.sh
+   ```
+
+The same block is the annotated master list for either route - every variable with its purpose and an example
+value, including the website- and Slack-only ones you would add if you opted back in.
+
+</details>
+
+`germline_variants.config` reads these same variables, so it needs no editing unless you want to change which
+steps run or rerun from VCFs (`post_process_only`). `REVISION` is fetched from GitHub, so your clone supplies
+the wrapper and config, not the pipeline code - local edits to the workflow are not picked up until released.
+
+The header of [`assets/run_germline.sh`](assets/run_germline.sh) maps every section and marks the
+`[edit]` blocks, which are the only places you should need to touch.
+
+On a successful run the wrapper also makes `${ANALYSIS_DIR}/germline` group read-writable
+(`chmod -R ug+rw`), so the results can be revised by the rest of the team.
+
+The pipeline can also be run directly with `nextflow run` on either Sanger OpenStack secure-lustre instances or
+farm22 by changing the profile specified: `-profile secure_lustre` or `-profile farm22`.
+
+### Toggles
+
+| Variable | Default | Effect when `false` |
+| --- | --- | --- |
+| `DERMATLAS_WEBSITE_LOGGING` | `true` | no analysis-log record is written to the Dermatlas website |
+| `DERMATLAS_SLACK_NOTIFICATIONS` | `true` | no Slack message on completion or failed launch |
+| `DERMATLAS_CLEANUP_WORK_DIR` | `true` | this run's work directory is kept instead of deleted |
+
+Work-directory cleanup only ever happens after a **successful** run; a failed one always keeps its work
+directory, and so does one stopped by `bkill` or an LSF limit - `DERMATLAS_CLEANUP_WORK_DIR` is not consulted
+unless the run succeeded. Cleanup relies on `params.publish_dir_mode = 'copy'`, and only ever removes the `work/` directory
+the wrapper itself created. A cleaned-up run cannot be `-resume`d: to rerun only the post-processing, use
+`post_process_only = true` against the published haplotypecaller VCFs (see the user docs).
+
+None are required. Each is resolved from the environment, most specific first - a shell export beats
+`source_me.sh`, which beats the default under **OPT-IN REPORTING** - so a single run can opt out without
+editing anything:
+
+```bash
+export DERMATLAS_CLEANUP_WORK_DIR=false
+bsub -o run.out -e run.err -J "germline-<cohort>" < run_germline.sh
+```
+
+`true/false`, `yes/no`, `on/off` and `1/0` are all accepted in any case; anything else fails the launch
+immediately rather than part-way through.
+
+### Reclaiming disk space
+
+`work/` and `tmp/` are the bulk of a cohort's disk and inode use, and are usually deleted by a separate clean-up
+script you run yourself rather than by the wrapper. So the wrapper leaves three dot-files in
+`${PROJECT_DIR}/<pipeline_slug>/` that let such a script tell a live run from a finished one - **including a run
+started by a different user, with no LSF tools involved**.
+
+<details>
+<summary><strong>The artefacts, and how to delete safely around them</strong></summary>
+
+| Artefact | Meaning |
+| --- | --- |
+| `.lock` | created once and **never removed**. Its presence says only that this directory uses the scheme. It never means a run is live. |
+| `.completed_successfully` | the last run finished successfully |
+| `.completed_with_error` | the last run reached a conclusion and failed - `bkill` and LSF limit kills included |
+
+Liveness is not a file. It is an exclusive `flock` held on `.lock` for as long as the wrapper owns the directory,
+and the kernel releases it when the process dies by any means, including `kill -9` and a node crash. So there is
+never a stale lock to clear - and `.lock` must never be deleted, because unlinking it lets the next run lock a
+fresh inode and exclude nobody.
+
+Both sentinels are cleared when a run starts and exactly one is written when it ends, so their absence is a
+truthful "no verdict for what is on disk right now".
+
+A second submission of a cohort while one is already running fails immediately with exit 75, naming the holder.
+That is deliberate: both runs would otherwise share one `work/`, and the first to finish would delete it under
+the second.
+
+#### Reading the state
+
+| State | `flock -n` | `.completed_successfully` | `.completed_with_error` |
+| --- | --- | --- | --- |
+| running now | busy | - | - |
+| succeeded | free | yes | - |
+| failed, incl. `bkill`ed | free | - | yes |
+| died mid-run (`kill -9`, node crash) | free | - | - |
+
+`flock -n <file> <command>` takes the lock, runs the command, and releases it - or, if something else already
+holds the lock, runs nothing at all and exits with the code given to `-E`. So a check and a deletion are the same
+one-liner with a different command on the end:
+
+```bash
+p="${PROJECT_DIR}/germline_pipe"
+
+# 1. Is a run using this directory? `true` does nothing, so this only reports.
+if flock -n -E 75 "$p/.lock" true; then
+    echo "free - nothing is using $p"
+else
+    echo "RUNNING - held by:"; cat "$p/.lock"
+fi
+
+# 2. Move the work directory, but only if nothing is using it. The lock is held
+#    for as long as the mv takes, so a run cannot start underneath it.
+flock -n -E 75 "$p/.lock" mv "$p/work" /path/to/to_delete/
+echo $?   # 0 = moved.  75 = a run owns it, and nothing was touched.
+```
+
+Testing the lock needs only **read** permission on `.lock`, so this works against another user's running
+pipeline. Moving their `work/` afterwards still needs write permission on their pipeline directory.
+
+#### Writing the clean-up statement
+
+Take the lock across both the decision and the move, never test-then-move, and require `.lock` to exist first:
+on a directory that pre-dates this scheme `flock` would create one and report a live run as idle.
+
+```bash
+cd "${PROJECT_DIR}/.."
+mkdir -p to_delete
+
+find . -type d \( -name '*_pipe' -o -name '*_pipeline' \) -print0 |
+while IFS= read -r -d '' p; do
+    [[ -e "$p/.lock" ]] || { echo "SKIP (no .lock) $p"; continue; }
+
+    flock -n -E 75 "$p/.lock" bash -c '
+        p="$1"
+        # --- the policy: pick one ---------------------------------------
+        [[ -e "$p/.completed_successfully" ]] || exit 3    # succeeded only
+        # [[ -e "$p/.completed_with_error" ]] || exit 3    # failed only
+        # ! [[ -e "$p/.completed_successfully" || -e "$p/.completed_with_error" ]] || exit 3   # died mid-run
+        # (no test at all)                                 # anything not running
+        # ----------------------------------------------------------------
+        for d in work tmp; do
+            [[ -d "$p/$d" ]] || continue
+            # ${p#./} first: a leading "./" would turn into "._" and hide the result
+            mv -v "$p/$d" "to_delete/$(echo "${p#./}" | tr / _)_${d}"
+        done
+    ' _ "$p"
+
+    case $? in
+      0)  ;;
+      75) echo "SKIP (RUNNING)  $p" ;;
+      3)  echo "SKIP (policy)   $p" ;;
+      *)  echo "ERROR           $p" ;;
+    esac
+done
+# rm -rf to_delete/
+```
+
+Rules that keep this safe: **neither sentinel present means "died mid-run", never "succeeded"**; never unlink or
+replace `.lock`; and if the pipeline directory is on a filesystem not mounted with `flock` (Lustre `localflock`,
+NFS `local_lock=`) the lock is node-local and a sweep running elsewhere will not see it - the wrapper warns about
+this at launch, but a script that deletes data should check `findmnt -T "$p" -no FSTYPE,OPTIONS` itself and refuse.
+
+A lock that looks stale is a live file descriptor, not a leftover file: `lsof "$p/.lock"` names the process
+holding it. `nextflow run` inherits the descriptor, so an orphaned nextflow keeps its directory protected even
+after the wrapper is gone - which is the intended behaviour.
+
+</details>
 
 ## Pipeline visualisation 
 Created using nextflow's in-built visualitation features.
@@ -271,13 +497,28 @@ nextflow run main.nf \
 
 ## Cutting a release
 
-Create a new release with `git hf release start <version>`.
+Cutting a new release requires a new semantic version tag, a changelog entry and
+a commit of the updated version in every file that records it. 
 
-Update the semantic version in these files and commit the changes:
-- `assets/run_germline.sh`
-- `nextflow.config`
+### One-off setup, per clone
 
-Then update the `CHANGELOG.md` and commit it. Finally `git hf release finish <version>`.
+Releases go through `git hf` (HubFlow). If it is not on your `PATH`, `module load git`.
+In a fresh clone, enable it once:
+
+```bash
+git hf init   # writes this clone's hubflow branch/prefix config; the defaults are correct
+```
+
+That is the only setup required.
+
+### Steps
+
+1. `git hf release start <version>`
+2. `./.update-version.sh <version>` — sets the semantic version in every file that
+   records it (`assets/run_germline.sh`, `docs/source/conf.py`, `nextflow.config`).
+   Run `./.update-version.sh --help` for details. Commit the changes.
+3. Update `CHANGELOG.md` and commit it.
+4. `git hf release finish <version>`
 
 ## Asset release bundles
 
@@ -295,13 +536,13 @@ https://github.com/team113sanger/dermatlas_germlinepost_nf/releases/download/<re
 | `main-latest` | `assets/` at the head of `main`, i.e. the latest released state | every push to `main` |
 | `develop-latest` | `assets/` at the head of `develop` | every push to `develop` |
 
-The two `-latest` refs are fixed tags on pre-releases: each push force-moves the tag onto the
-new HEAD and replaces the bundle in place, so the download URL never changes and always
-serves that branch's current assets. `releases/latest/download/...` is deliberately not used -
-it resolves only to the newest non-pre-release, so it cannot address the rolling channels.
+The two `-latest` refs are fixed tags on pre-releases. Each push replaces the bundle attached
+to the tag, so the download URL never changes and always serves that branch's current assets.
 
-This repository is GitLab-primary and push-mirrored to GitHub, so the workflow is inert on
-GitLab CI and runs only once the mirror has synced (~1-2 min). Commit changes to it via
-GitLab, never GitHub. To publish a bundle for a ref that predates the workflow, run it by
-hand from the GitHub Actions tab (*Publish projectify asset bundle* -> *Run workflow*) with
-`ref` set to the tag or branch to build from.
+`releases/latest/download/...` is deliberately not used - it resolves only to the newest non-pre-release, so it
+cannot address the rolling channels. To publish a bundle for a ref that predates the workflow, run it by hand
+from the GitHub Actions tab (*Publish projectify asset bundle* -> *Run workflow*) with `ref` set to the tag or
+branch to build from.
+
+This repository is GitHub-primary. It was previously GitLab-primary and push-mirrored to GitHub; that mirror was
+retired and the GitLab project archived.

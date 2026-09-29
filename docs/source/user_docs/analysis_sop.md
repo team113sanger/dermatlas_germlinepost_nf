@@ -1,6 +1,6 @@
 # Nextflow: Germline variant calling pipeline
 
-Germline variant calling and post-processing for DERMATLAS can be run mostly with a single nextflow pipeline in a largely "set-and-forget" manner to reproduce the manual steps detailed in [DERMATLAS - Germline calling with GATK - for WES - using Nextflow Tower](https://confluence.sanger.ac.uk/x/BJOeB). This document contains an SOP for configuring and running the pipeline. For a more detailed explanation of the pipeline, the inputs, steps and requirements for running can be found within the pipeline project [README](https://gitlab.internal.sanger.ac.uk/DERMATLAS/analysis-methods/dermatlas_germlinepost_nf/-/blob/develop/README.md?ref_type=heads)
+Germline variant calling and post-processing for DERMATLAS can be run mostly with a single nextflow pipeline in a largely "set-and-forget" manner to reproduce the manual steps detailed in [DERMATLAS - Germline calling with GATK - for WES - using Nextflow Tower](https://confluence.sanger.ac.uk/x/BJOeB). This document contains an SOP for configuring and running the pipeline. For a more detailed explanation of the pipeline, the inputs, steps and requirements for running can be found within the pipeline project [README](https://github.com/team113sanger/dermatlas_germlinepost_nf/blob/develop/README.md)
 
 ## Workflow Overview
 
@@ -16,104 +16,34 @@ Germline variant calling and post-processing for DERMATLAS can be run mostly wit
 
 ### 1. Generate Input Table
 
-Generating the input table for samples to run germline calling on a study works essentially in the same way as when manually running of the pipeline. You will need a `.tsv` file detailing the normal samples to run, with the following columns:
+The pipeline runs on a `.tsv` file detailing the normal samples to run, with a header and the following columns:
 
-| sample   | object                                                                                                                                   | object index                                                                                                                                 |
+| sample   | object                                                                                                                                   | object_index                                                                                                                                 |
 |:---------|:-----------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------|
 | PD42171b | /lustre/scratch124/casm/team113/projects/5534_Landscape_sebaceous_tumours_GRCh38_Remap_germline/BAMS/PD42171b.sample.dupmarked.bam | /lustre/scratch124/casm/team113/projects/5534_Landscape_sebaceous_tumours_GRCh38_Remap_germline/BAMS/PD42171b.sample.dupmarked.bam.bai |
 
+Provided that you have set up your project with [dermanager](https://confluence.sanger.ac.uk/x/fwBTCQ), this table is generated for you from the cohort's retained, usable matched tumour-normal pairs (one normal per patient, pointed at the staged BAM), and `source_me.sh` exports its path as `DNA_GERMLINE_NORMAL_MANIFEST`:
 
-The easiest means to create this table is to run the `germline_normal_select.R` script from our [GERMLINE] codebase which will populate these fields from your matched tumour-normal pairs. Provided that you have installed your [analysis methods with dermanager](https://confluence.sanger.ac.uk/x/fwBTCQ), this can be accomplished by navigating into your project directory:
-
-```bash
-cd $PROJECT_DIR
+```
+metadata/{study_id}_{canapps_id}-normal_one_per_patient_matched_germline.tsv
 ```
 
-Then run the `germline_normal_select.R` script like so:
-
-```bash
-# Setup project environmental variables
-
-source source_me.sh
-
-# Setup germline analysis environment variables 
-source ${PROJECTDIR}/scripts/germline/source_me.sh
-
-# Run the script to get the final table format for input to nf_deepvariant
-Rscript ${PROJECTDIR}/scripts/germline/scripts/germline_normal_select.R \
---study_id ${STUDY} \
---bam_dir ${PROJECTDIR}/bams \
---sample_pairs ${PROJECTDIR}/metadata/${STUDY}_${PROJECT}-one_tumour_per_patient_matched.tsv \
---outdir ${PROJECTDIR}/metadata
-```
-
-:::{note}
-**If Rejected samples are available**
-
-If DNA samples in the cohort need to be rejected from sample list creation then you can use the update the "rejected DNA samples" table  (`${PROJECTDIR}/metadata/rejected\_DNA\_samples.txt`) and ignore the new IDs by running the command with the `–remove\_list` parameter:
-
-
-
-```bash
-Rscript ${PROJECTDIR}/scripts/GERMLINE/scripts/germline_normal_select.R \
---study_id ${STUDY:?unset} \
---bam_dir ${PROJECTDIR:?unset}/bams \
---sample_pairs ${PROJECTDIR:?unset}/metadata/${STUDY:?unset}_${PROJECT:?unset}-one_tumour_per_patient_matched.tsv \
---remove_list ${PROJECTDIR:?unset}/metadata/rejected_DNA_samples.txt \
---outdir ${PROJECTDIR:?unset}/metadata 
-```
-
-This will generate a file called `{STUDY}_normal_one_per_patient_matched_selected_germl_samples.tsv` where `{STUDY}` is replaced with your study ID.
-
-:::
+It replaces the file previously made by hand with `germline_normal_select.R`. Only matched pairs are used, so no in-silico normal can reach a germline call.
 
 ### 2. Generating the cohort config file
 
-The nextflow pipeline's config file encodes all of the options and inputs we might want to pass to the pipeline. For newer versions of Dermanager (> dermanager/0.4.3) this will be autogenerated for you and populated in `commands/germline.config`. A wrapper script for launching the pipeline should also be created in `commands/run_germline.sh`
+The nextflow pipeline's config file encodes all of the options and inputs we might want to pass to the pipeline. dermanager unpacks it, with the wrapper script that launches the pipeline, into `commands/germline_pipe/`:
 
-For most pipeline runs there are only **3** parameters that you might ever need to change.
+- `commands/germline_pipe/germline_variants.config`
+- `commands/germline_pipe/run_germline.sh`
 
-- The study ID (used in labelling output files)
-- The path to the normal samples `.tsv`  file (generated in Step 1)
-- The output directory to publish results into
+Both are the files in the pipeline's [`assets/`](https://github.com/team113sanger/dermatlas_germlinepost_nf/tree/develop/assets) directory. The config reads its cohort-dependent inputs from the environment set by the project `source_me.sh`, so for most runs nothing needs editing:
 
-There is a large set of other parameters specified within the config file but won't normally need changing. These other parameters mostly modify which steps are included in a pipeline run and paths to reference files. For convenience of maintaining the pipeline in a way that in can be run on or off farm22, all the reference files used by the pipeline are duplicated in `/lustre/scratch127/casm/teams/team113//secure-lustre/projects/dermatlas/resources/dermatlas`. These are direct copies of the resources directory you might find in other dermatlas PUs
+- the study ID (used in labelling output files) - `${STUDY}`
+- the normal samples `.tsv` file (Step 1) - `${DNA_GERMLINE_NORMAL_MANIFEST}`
+- the output directory to publish results into - `${ANALYSIS_DIR}/germline`
 
-Should you need one an example config file is included below:
-**germline.config**
-
-```
-params {
-    study_id = "${STUDY}"
-    tsv_file = "${PROJECT_DIR}/metadata/${STUDY}_normal_one_per_patient_matched_selected_germl_samples.tsv"
-    outdir = "${PROJECT_DIR}/analysis/germline"
-    chrom_list = "${baseDir}/assets/grch38_chromosome.txt"
-    post_process_only = false
-    summarise_results = true
-    samples_to_process = -1
-    run_mode = "sort_inputs"
-    run_coord_sort_cram = true
-    run_deepvariant = false
-    run_haplotypecaller = true
-    run_markDuplicates = true
-    baitset = "/lustre/scratch127/casm/projects/dermatlas/resources/baitset/GRCh38_WES5_canonical_pad100.merged.bed"
-    reference_genome = "/lustre/scratch127/casm/projects/dermatlas/references/germline/genome.fa"
-    vep_cache = "/lustre/scratch127/casm/projects/dermatlas/references/vep/cache/103"
-    custom_files = "/lustre/scratch127/casm/projects/dermatlas/references/vep/cosmic/v97/CosmicV97Coding_Noncoding.normal.counts.vcf.gz{,.tbi};/lustre/scratch127/casm/projects/dermatlas/references/vep/clinvar/20230121/clinvar_20230121.chr.canonical.vcf.gz{,.tbi};/lustre/scratch127/casm/projects/dermatlas/references/vep/dbsnp/155/dbSNP155.GRCh38.GCF_000001405.39.mod.vcf.gz{,.tbi};/lustre/scratch127/casm/projects/dermatlas/references/vep/gnomad/v3.1.2/gnomad.genomes.v3.1.2.short.vcf.gz{,.tbi}"
-    custom_args = "CosmicV97Coding_Noncoding.normal.counts.vcf.gz,Cosmic,vcf,exact,0,CNT;clinvar_20230121.chr.canonical.vcf.gz,ClinVar,vcf,exact,0,CLNSIG,CLNREVSTAT;dbSNP155.GRCh38.GCF_000001405.39.mod.vcf.gz,dbSNP,vcf,exact,0;gnomad.genomes.v3.1.2.short.vcf.gz,gnomAD,vcf,exact,0,FLAG,AF"
-    nih_germline_resource = "/lustre/scratch127/casm/projects/dermatlas/resources/germline/national_genomic_test_germline_cancer_genes/output/Cancer_national_genomic_test_directory_v7.2_June_2023_gene_smv_summary.tsv"
-    cancer_gene_census_resource = "/lustre/scratch127/casm/projects/dermatlas/resources/COSMIC/cancer_gene_census.v97.genes.tsv"
-    flag_genes = "/lustre/scratch127/casm/projects/dermatlas/resources/germline/FLAG_genes_maftools.tsv"
-    species = "homo_sapiens"
-    filter_col = "gnomAD_AF"
-    db_version = "103"
-    assembly = "GRCh38"
-    samples_to_process = -1
-    publish_intermediates = false
-    alternative_transcripts = "/lustre/scratch127/casm/projects/dermatlas/resources/ensembl/dermatlas_noncanonical_transcripts_ens103.v2.tsv"
-  
-}
-```
+The other parameters mostly select which steps are included in a pipeline run and point at reference files. For convenience of maintaining the pipeline in a way that in can be run on or off farm22, all the reference files used by the pipeline are duplicated in `/lustre/scratch127/casm/teams/team113//secure-lustre/projects/dermatlas/resources/dermatlas`. These are direct copies of the resources directory you might find in other dermatlas PUs
 
 ### 3. Running the pipeline
 
@@ -134,49 +64,18 @@ WARN: [DERMATLAS_GERMLINE:GATK_GVCF_PER_CHROM (24)] Unable to resume cached task
 
 #### **i) From bams**
 
-
-Provided that you have setup your project with new versions of dermanager the script `commands/run_germline.sh` should have been autopopulated. If this is the case then you'll now be able to launch the pipeline with:
-```bash
-bsub -e logs/germline.e -o logs/germline.o < run_germline.sh
-```
-
-The bsub magic at the start of the wrapper script will send a nextflow "master job", that looks after all other jobs to the oversubscribed queue (where it can live in peace running for a long period without fear of termination). Nextflow will shortly start submitting jobs on your behalf to the relevant queues
-
-If you haven't initialised your project with dermanager you can prepare to launch the pipeline by modifying and saving this wrapper script and the config file provided above. You will need to update the desitination of the config file + desired log file locations. 
-
-In this script the "`-r"`  option specifies which version of the pipeline you'd like to run. Normally you should select the latest version. Check the project gitlab for info on latests versions.
-
-**Example file:**
-
-**run_germline_calling.sh**
+Provided that you have set up your project with dermanager, launch the pipeline from the project directory with:
 
 ```bash
-#!/bin/bash
-#BSUB -q oversubscribed
-#BSUB -G team113-grp
-#BSUB -R "select[mem>8000] rusage[mem=8000] span[hosts=1]"
-#BSUB -M 8000
-set -euo pipefail
-
-source source_me.sh
-export CONFIG="${PROJECT_DIR}/commands/germline_variants.config"
-export REVISION="0.3.3"
-
-
-# Load module dependencies
-module load nextflow-23.10.0
-module load /software/modules/ISG/singularity/3.11.4
- 
-nextflow pull 'https://github.com/team113sanger/dermatlas_germlinepost_nf' 
-
-nextflow run 'https://github.com/team113sanger/dermatlas_germlinepost_nf' \
--resume \
--r "${REVISION}" \
--c "${CONFIG}" \
--profile farm22
+cd $PROJECT_DIR
+bsub -e logs/germline.e -o logs/germline.o < commands/germline_pipe/run_germline.sh
 ```
 
+The bsub magic at the start of the wrapper script will send a nextflow "master job", that looks after all other jobs to the oversubscribed queue (where it can live in peace running for a long period without fear of termination). Nextflow will shortly start submitting jobs on your behalf to the relevant queues.
 
+The wrapper sources `source_me.sh`, checks the environment it needs, and runs the pipeline in `${PROJECT_DIR}/germline_pipe/`. Its `REVISION` selects which version of the pipeline to run; see the project [GitHub releases](https://github.com/team113sanger/dermatlas_germlinepost_nf/releases) for the latest versions. After a successful run it deletes the run's `work/` directory and makes `analysis/germline` group read-writable. Website logging, Slack notifications and the work-directory cleanup are each controlled by a toggle.
+
+If you haven't initialised your project with dermanager, see "Without the website" in the [README](https://github.com/team113sanger/dermatlas_germlinepost_nf/blob/develop/README.md) for the environment the wrapper needs and how to provide it.
 
 #### ii) From VCFs
 
@@ -193,10 +92,10 @@ Here is what the updated config file should look like:
 ```
 params {
     study_id = "${STUDY}"
-    tsv_file = "${PROJECT_DIR}/metadata/${STUDY}_normal_one_per_patient_matched_selected_germl_samples.tsv"
-    outdir = "${PROJECT_DIR}/analysis/germline"
-    geno_vcf = "${PROJECT_DIR}/analysis/germline/gatk_haplotypecaller/**.vcf.gz"
-	sample_map = "${PROJECT_DIR}/analysis/germline/sample_map.txt"
+    tsv_file = "${DNA_GERMLINE_NORMAL_MANIFEST}"
+    outdir = "${ANALYSIS_DIR}/germline"
+    geno_vcf = "${ANALYSIS_DIR}/germline/gatk_haplotypecaller/**.vcf.gz"
+    sample_map = "${ANALYSIS_DIR}/germline/sample_map.txt"
     chrom_list = "${baseDir}/assets/grch38_chromosome.txt"
     post_process_only = true
     summarise_results = true
@@ -228,7 +127,7 @@ params {
 After you have made the edit, submit a new run like so:
 
 ```
-bsub -e germline_vcf.e -o germline_vcf.o < run_germline.sh
+bsub -e logs/germline_vcf.e -o logs/germline_vcf.o < commands/germline_pipe/run_germline.sh
 ```
 
 ### Troubleshooting problem nextflow runs:
@@ -236,10 +135,10 @@ bsub -e germline_vcf.e -o germline_vcf.o < run_germline.sh
  There are several reasons the gemline pipeline might fail including bugs in the pipeline; issues with LSF; or misconfiguration.  In most cases (especially when you suspect a farm/ LSF failure), simply re-submitting the pipeline with
 
 ```
-bsub -e germline_vcf.e -o germline_vcf.o < run_germline.sh
+bsub -e logs/germline_vcf.e -o logs/germline_vcf.o < commands/germline_pipe/run_germline.sh
 ```
 
-will trigger the nextflow `-resume` directive and the pipeline will pick up where it left off.
+will trigger the nextflow `-resume` directive and the pipeline will pick up where it left off. A failed run always keeps its work directory, so it can be resumed; a successful one has its work directory deleted unless `DERMATLAS_CLEANUP_WORK_DIR=false` was set.
 
 It is often worth taking a glance at the pipeline logs (`<YOUR_PROJECT_DIR>/analysis/logs/germline_calling_%J.o`) to follow and see what's going on, especially if jobs have failed.
 
@@ -255,7 +154,7 @@ cat .command.sh
 :::{important}
 **Multiple runs**
 
-Nextflow is able to keep track of past runs by creating a .nextflow directory in the current location and stores intermediate files in a work. If you want to run the same pipeline but on different cohorts (e.g. hidradenomas and hidradenocarcionmas) in parallel, please ensure that you launch each instance of the pipeline in a seperate directory - otherwise nextflow can't keep track of what is going on an report errors about "nextflow lock files "
+The wrapper runs each project's pipeline in its own directory (`${PROJECT_DIR}/germline_pipe`), so different cohorts can run in parallel. A second submission for the same project while one is still running fails immediately with exit code 75 and names the run holding the directory: wait for it to finish, or kill it, before resubmitting.
 
 :::
 

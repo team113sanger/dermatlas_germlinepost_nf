@@ -4,8 +4,87 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Keywords
+
+As of version 0.4.0 the following *keywords* are used at the start of each
+changelog entry to indicate the impact of the change:
+
+- **REPRODUCIBILITY** - a change to the pipeline's scientific processing that
+  may cause the same input data to produce different scientific outputs or
+  results, including changes to algorithms, tolerances, randomisation,
+  scientific functionality, or output formats.
+- **ROBUSTNESS** - a fix or improvement to the pipeline's scientific
+  functionality that improves correctness, reliability, or the range of inputs
+  that can be processed, without intentionally changing the scientific results
+  of an equivalent successful analysis.
+- **INTEGRATION** - a change to how the pipeline integrates with other systems
+  or infrastructure, without changing its scientific processing or results.
 
 ## [Unreleased]
+### Added
+- **INTEGRATION** - run reporting. `workflow.onComplete` calls `Utils.reportRun`
+  (`lib/Utils.groovy`, shared byte-for-byte with the other Dermatlas pipelines), which
+  records the run in the Dermatlas website's analysis log via `dermatlas-http cohort
+  analysis-log` (>= 0.6.1) and posts a Slack message. Each is opt-in/opt-out through
+  `DERMATLAS_WEBSITE_LOGGING` / `DERMATLAS_SLACK_NOTIFICATIONS`, reads its values
+  (`COHORT_SLUG`, `SAMPLE_LIST_VERSION_FILE`, `SELF_DESCRIBING_API`,
+  `SLACK_WEBHOOK_URL`) from the environment, never fires on a stub run, and never
+  changes the pipeline's exit status. New params: `analysis_pipeline_slug`
+  (`germline_pipe`), `is_stub`, `trace_file`.
+- **INTEGRATION** - `run_germline.sh` is rebuilt from the Dermatlas launcher template
+  (`dermatlas_rnafusions_nf` 0.4.15): it sources `source_me.sh` (`SOURCE_ME`, or
+  `"none"` plus the MANUAL ENVIRONMENT OVERRIDES block for git-clone runs), checks every
+  variable the config needs before `nextflow run` starts, reports a failed launch to
+  stderr and (opted in) Slack, holds an exclusive `flock` on
+  `${PROJECT_DIR}/germline_pipe/.lock` for the life of the run, and writes
+  `.completed_successfully` / `.completed_with_error` at exit. See "Reclaiming disk
+  space" in the README.
+- **INTEGRATION** - after a successful run the launcher writes
+  `stats/resource-stats-<RUN_ID>.txt` (wall time, work-dir bytes and inodes), reports
+  it to the website with `dermatlas-http cohort analysis-workdir-stats` (module-loaded
+  via `DERMATLAS_HTTP_MODULE`, default `dermatlas-http`; requires dermatlas-web-client
+  >= 0.6.2; best effort), and deletes the run's work directory unless
+  `DERMATLAS_CLEANUP_WORK_DIR=false`. A failed or killed run always keeps it.
+- **INTEGRATION** - one launcher-owned `RUN_ID` names the run's nextflow logs
+  (`logs/nextflow-run-<RUN_ID>.log`, `logs/nextflow-pull-<RUN_ID>.log`), execution trace
+  (new) and execution report, both under `${PROJECT_DIR}/germline_pipe/traces/`.
+  `nextflow run` uses a per-revision clone (`clones/<REVISION>`) and a pinned
+  singularity cache.
+- **INTEGRATION** - `.update-version.sh` sets the version in every file that records it
+  (`assets/run_germline.sh`, `docs/source/conf.py`, `nextflow.config`); see "Cutting a
+  release" in the README.
+
+### Changed
+- **INTEGRATION** - **Breaking:** `germline_variants.config` takes `tsv_file` from
+  `DNA_GERMLINE_NORMAL_MANIFEST`, the normal manifest dermanager now generates (replacing
+  `germline_normal_select.R`), and `outdir` from `${ANALYSIS_DIR}/germline`, and
+  `run_germline.sh` requires both. A `source_me.sh` that does not export
+  `DNA_GERMLINE_NORMAL_MANIFEST` fails the launch with the variable named.
+- **INTEGRATION** - **Breaking:** the launcher reads its config from
+  `commands/germline_pipe/germline_variants.config` (was `commands/germline_variants.config`)
+  and runs in `${PROJECT_DIR}/germline_pipe` (was `germline_pipeline`), matching
+  dermanager's slug. A run started under the old directory cannot be `-resume`d from the
+  new one.
+- **INTEGRATION** - **Breaking:** a run killed by `bkill` or an LSF limit now exits
+  `128+n` and records `.completed_with_error`; a second submission while a run holds the
+  pipeline directory exits 75 without touching it.
+- **INTEGRATION** - the post-run `chmod -R ug+rw` of the results now runs inside the
+  launcher's exit handler on success only, and its failure is a `NOTE:`, not a failed job.
+- **INTEGRATION** - `.github/workflows/publish-assets.yml` is replaced with the reference
+  copy: the rolling `main-latest` / `develop-latest` tags are created once and never
+  moved (only the attached bundle is replaced), which kept breaking `git hf release
+  finish`. The repository is GitHub-primary; README, docs and `manifest.homePage` no
+  longer point at GitLab.
+
+### Fixed
+- **REPRODUCIBILITY** - the `farm22` profile's `reference_genome` now matches the asset
+  config (`references/germline/genome.fa`). Managed runs already used this genome; a
+  run relying on the profile alone previously used
+  `resources/ascat/GRCh38_full_analysis_set_plus_decoy_hla.fa`.
+- **INTEGRATION** - the execution report is written beside the trace instead of the
+  launch directory, and the dead top-level `tracedir` setting is removed.
+- **INTEGRATION** - `docs/source/conf.py` carried release 0.3.3; the user docs no longer
+  embed a stale copy of the launcher or config.
 
 ## [0.3.6] - 2026-08-27
 ### Added
