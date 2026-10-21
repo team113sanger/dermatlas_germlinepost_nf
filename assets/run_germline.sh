@@ -765,7 +765,7 @@ fi
 # Nextflow config for this run; git-clone runs point this at their own copy.
 CONFIG="${COMMANDS_DIR}/${PIPELINE_SLUG}/germline_variants.config"
 # Pipeline version to run: a tag or commit hash.
-REVISION="0.4.0"
+REVISION="0.4.1"
 # Optional. If set, RUN_ID becomes <label>_<timestamp>.
 LABEL=""
 

@@ -22,6 +22,9 @@ changelog entry to indicate the impact of the change:
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-21
+- **INTEGRATION** - Removed the `-G team113-grp` LSF submission option in `assets/run_germline.sh` so that user space environmental variables can control group selection.
+
 ## [0.4.0] - 2026-09-29
 ### Added
 - **INTEGRATION** - run reporting. `workflow.onComplete` calls `Utils.reportRun`
