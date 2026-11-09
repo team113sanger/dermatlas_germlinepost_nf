@@ -22,6 +22,10 @@ changelog entry to indicate the impact of the change:
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-11-09
+### Modified
+- **INTEGRATION** - Updated the pipeline asset to the latest revision `0.4.3`.
+
 ## [0.4.2] - 2026-11-09
 - **ROBUSTNESS** - Updated the container image for the summarise results module to `germline:0.7.1`. This includes a patch to fix issues with long DOMAINS strings annotated in the MAF files.
 
