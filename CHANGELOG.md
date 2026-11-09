@@ -22,6 +22,9 @@ changelog entry to indicate the impact of the change:
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-11-09
+- **ROBUSTNESS** - Updated the container image for the summarise results module to `germline:0.7.1`. This includes a patch to fix issues with long DOMAINS strings annotated in the MAF files.
+
 ## [0.4.1] - 2026-10-21
 - **INTEGRATION** - Removed the `-G team113-grp` LSF submission option in `assets/run_germline.sh` so that user space environmental variables can control group selection.
 
