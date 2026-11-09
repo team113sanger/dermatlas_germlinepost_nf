@@ -1,6 +1,6 @@
 process FILTER_AND_ONCOPLOT {
     publishDir "${params.outdir}/vcf/Final_joint_call/sum_files", mode: 'copy'
-    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.6.0"
+    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/analysis-methods/germline:0.7.1"
     memory '16.GB'
     
     input:
