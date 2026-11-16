@@ -22,6 +22,10 @@ changelog entry to indicate the impact of the change:
 
 ## [Unreleased]
 
+## [0.4.4] - 2026-11-16
+### Modified
+- **INTEGRATION** - Fixed the stale version in `nextflow.config` and `docs/source/conf.py` (0.4.1 → 0.4.4).
+
 ## [0.4.3] - 2026-11-09
 ### Modified
 - **INTEGRATION** - Updated the pipeline asset to the latest revision `0.4.3`.
